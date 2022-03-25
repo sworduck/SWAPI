@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">SWAPI</string>
+    <string name="menu_search">search</string>
+    <string name="menu_settings">settings</string>
+    <string name="menu_navigation">navigation</string>
+    <string name="title_home">search fragment</string>
+    <string name="title_search">search</string>
+    <string name="title_navigation">navigation</string>
+    <string name="title_settings">settings</string>
 </resources>
