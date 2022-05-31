@@ -7,25 +7,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import com.example.swapi.databinding.SearchFragmentBinding
+import com.example.swapi.databinding.FavoriteCharactersFragmentBinding
 
-class SearchFragment : Fragment() {
+class FavoriteCharactersFragment : Fragment() {
 
 
-    private lateinit var viewModel: SearchViewModel
+    private lateinit var viewModel: FavoriteCharactersViewModel
 
-    private lateinit var binding: SearchFragmentBinding
+    private lateinit var binding: FavoriteCharactersFragmentBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(inflater,R.layout.search_fragment,container,false)
+        binding = DataBindingUtil.inflate(inflater,R.layout.favorite_characters_fragment,container,false)
 
-        viewModel = ViewModelProvider(this)[SearchViewModel::class.java]
+        viewModel = ViewModelProvider(this)[FavoriteCharactersViewModel::class.java]
         return binding.root
     }
-
 
 
 }
