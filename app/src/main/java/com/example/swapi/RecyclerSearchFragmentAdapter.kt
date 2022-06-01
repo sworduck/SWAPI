@@ -16,6 +16,9 @@ class RecyclerSearchFragmentAdapter(private val listCharactersName:List<String>)
 
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         holder.textView.text = listCharactersName[position]
+        holder.textView.setOnClickListener {
+            //TODO переход в активити и обратно
+        }
     }
 
     override fun getItemCount(): Int {

@@ -19,6 +19,9 @@ import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 
 class SearchFragment : Fragment() {
+    companion object {
+        fun newInstance() = SearchFragment()
+    }
 
     private val BASE_URL = "https://swapi.dev/api/"
 
