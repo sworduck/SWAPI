@@ -6,18 +6,18 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CharacterList(@SerializedName("count")
-                    private val count: Int,
+                     val count: Int,
                     @SerializedName("next")
-                    private val next: String?,
+                     val next: String?,
                     @SerializedName("previous")
-                    private val previous: String?,
+                     val previous: String?,
                     @SerializedName("results")
-                    private val results: List<CharacterCloud>?=null)
+                     val results: List<CharacterCloud>?=null)
 
 
 data class CharacterCloud(
     @SerializedName("name")
-    private val name: String,
+     val name: String,
     @SerializedName("height")
     private val height: String,
     @SerializedName("mass")

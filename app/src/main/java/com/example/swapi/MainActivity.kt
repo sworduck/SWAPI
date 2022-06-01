@@ -34,10 +34,11 @@ class MainActivity : AppCompatActivity() {
         var list: CharacterList? = null
 
         var cList:MutableList<CharacterCloud> = mutableListOf()
+        /*
         scope.launch {
             //val apiResponse = URL(BASE_URL+"people/").readText()//не вариант, текст длинный слишком
             //Log.i("TAG", "${apiResponse}");
-            list =gson.fromJson(service.fetchCharacters().string(),typelist)
+            list =gson.fromJson(service.fetchCharacters(1).string(),typelist)
             //val a = service.getTripCoord(1)//нужен адаптер для Deffered<JSONArray>
             //val a:Character = gson.fromJson(service.getTripCoord(1).string(),object:TypeToken<Character>(){}.type)
             //val b:Character = gson.fromJson(service.getTripCoord(1).string(),object:TypeToken<Character>(){}.type)
@@ -49,6 +50,8 @@ class MainActivity : AppCompatActivity() {
             Log.i("TAG", "${list}");
             val c =3
         }
+
+         */
         //читать по одному
 
 
