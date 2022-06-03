@@ -2,7 +2,6 @@ package com.example.swapi
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +11,6 @@ import com.example.swapi.databinding.SearchFragmentBinding
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -31,6 +29,10 @@ class SearchFragment : Fragment() {
 
     private lateinit var binding: SearchFragmentBinding
 
+    private var adapter:RecyclerSearchFragmentAdapter? = null
+
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -38,6 +40,7 @@ class SearchFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.search_fragment,container,false)
 
         viewModel = ViewModelProvider(this)[SearchViewModel::class.java]
+
 
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -47,13 +50,17 @@ class SearchFragment : Fragment() {
         val typelist = object: TypeToken<CharacterList>(){}.type
         val scope = CoroutineScope(Job() + Main)
         var list: CharacterList? = null
+        adapter = RecyclerSearchFragmentAdapter(mutableListOf())
+        binding.charactersRecyclerView.adapter = adapter
+
         scope.launch {
             list =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
-            val b:MutableList<String> = mutableListOf()
+            val listOfCharacters:MutableList<String> = mutableListOf()
             for(i in list!!.results!!.indices){
-                b.add(i,list!!.results!![i].name)
+                listOfCharacters.add(i,list!!.results!![i].name)
             }
-            binding.charactersRecyclerView.adapter = RecyclerSearchFragmentAdapter(b)
+            adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
+            binding.charactersRecyclerView.adapter = adapter
 
         }
 
@@ -62,11 +69,13 @@ class SearchFragment : Fragment() {
                 scope.launch {
                     urlId++
                     list =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
-                    val b:MutableList<String> = mutableListOf()
+                    val listOfCharacters:MutableList<String> = mutableListOf()
                     for(i in list!!.results!!.indices){
-                        b.add(i,list!!.results!![i].name)
+                        listOfCharacters.add(i,list!!.results!![i].name)
                     }
-                    binding.charactersRecyclerView.adapter = RecyclerSearchFragmentAdapter(b)
+                    adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
+                    adapter!!.setPage(urlId-1)
+                    binding.charactersRecyclerView.adapter = adapter
                 }
             }
         }
@@ -75,11 +84,13 @@ class SearchFragment : Fragment() {
                 scope.launch {
                     urlId--
                     list =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
-                    val b:MutableList<String> = mutableListOf()
+                    val listOfCharacters:MutableList<String> = mutableListOf()
                     for(i in list!!.results!!.indices){
-                        b.add(i,list!!.results!![i].name)
+                        listOfCharacters.add(i,list!!.results!![i].name)
                     }
-                    binding.charactersRecyclerView.adapter = RecyclerSearchFragmentAdapter(b)
+                    adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
+                    adapter!!.setPage(urlId-1)
+                    binding.charactersRecyclerView.adapter = adapter
                 }
             }
         }

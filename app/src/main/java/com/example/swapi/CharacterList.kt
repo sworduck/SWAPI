@@ -17,11 +17,11 @@ data class CharacterList(@SerializedName("count")
 
 data class CharacterCloud(
     @SerializedName("name")
-     val name: String,
+    val name: String,
     @SerializedName("height")
-    private val height: String,
+    val height: String,
     @SerializedName("mass")
-    private val mass: String,
+    val mass: String,
     @SerializedName("hair_color")
     private val hair_color: String,
     @SerializedName("skin_color")
@@ -33,7 +33,7 @@ data class CharacterCloud(
     @SerializedName("gender")
     private val gender: String,
     @SerializedName("homeworld")
-    private val homeworld: String,
+    val homeworld: String,
     @SerializedName("films")
     private val films: List<String>?=null,
     @SerializedName("species")

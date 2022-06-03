@@ -4,6 +4,6 @@
         android:title="@string/menu_search"
         android:icon="@drawable/ic_launcher_foreground" />
     <item android:id="@+id/action_settings"
-        android:title="@string/menu_settings"
+        android:title="@string/favorite"
         android:icon="@drawable/ic_launcher_foreground" />
 </menu>
