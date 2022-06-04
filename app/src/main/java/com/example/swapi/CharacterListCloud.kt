@@ -1,17 +1,51 @@
 package com.example.swapi
 
 import com.google.gson.annotations.SerializedName
+import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
 import kotlinx.serialization.Serializable
 
 
+class Character(){
+    constructor(_id:Int,_name:String,_height:String,_mass:String,_homeworld:String):this(){
+        id = _id
+        name = _name
+        height = _height
+        mass = _mass
+        homeworld = _homeworld
+    }
+    var id = 0
+    var name = "0"
+    var height = "0"
+    var mass = "0"
+    var homeworld = "0"
+}
+
+open class CharacterDb(): RealmObject(){
+    constructor(_id:Int,_name:String,_height:String,_mass:String,_homeworld:String):this(){
+        id = _id
+        name = _name
+        height = _height
+        mass = _mass
+        homeworld = _homeworld
+    }
+    @PrimaryKey
+    var id = 0
+
+    var name = "0"
+    var height = "0"
+    var mass = "0"
+    var homeworld = "0"
+}
+
 @Serializable
-data class CharacterList(@SerializedName("count")
+data class CharacterListCloud(@SerializedName("count")
                      val count: Int,
-                    @SerializedName("next")
+                              @SerializedName("next")
                      val next: String?,
-                    @SerializedName("previous")
+                              @SerializedName("previous")
                      val previous: String?,
-                    @SerializedName("results")
+                              @SerializedName("results")
                      val results: List<CharacterCloud>?=null)
 
 

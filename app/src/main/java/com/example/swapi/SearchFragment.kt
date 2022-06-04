@@ -10,6 +10,8 @@ import androidx.databinding.DataBindingUtil
 import com.example.swapi.databinding.SearchFragmentBinding
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import io.realm.Realm
+import io.realm.RealmConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -31,6 +33,8 @@ class SearchFragment : Fragment() {
 
     private var adapter:RecyclerSearchFragmentAdapter? = null
 
+    private var realm:Realm? = null
+
 
 
     override fun onCreateView(
@@ -41,23 +45,34 @@ class SearchFragment : Fragment() {
 
         viewModel = ViewModelProvider(this)[SearchViewModel::class.java]
 
+        //realm
+        Realm.init(context)
+        Realm.setDefaultConfiguration(
+            RealmConfiguration.Builder()
+                .allowWritesOnUiThread(true)
+                .allowQueriesOnUiThread(true)
+                .deleteRealmIfMigrationNeeded()
+                .build()
+        )
+        realm = Realm.getDefaultInstance()
+
 
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .build()
         val service = retrofit.create(CharacterService::class.java)
         val gson = Gson()
-        val typelist = object: TypeToken<CharacterList>(){}.type
+        val typelist = object: TypeToken<CharacterListCloud>(){}.type
         val scope = CoroutineScope(Job() + Main)
-        var list: CharacterList? = null
+        var listCloud: CharacterListCloud? = null
         adapter = RecyclerSearchFragmentAdapter(mutableListOf())
         binding.charactersRecyclerView.adapter = adapter
 
         scope.launch {
-            list =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
+            listCloud =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
             val listOfCharacters:MutableList<String> = mutableListOf()
-            for(i in list!!.results!!.indices){
-                listOfCharacters.add(i,list!!.results!![i].name)
+            for(i in listCloud!!.results!!.indices){
+                listOfCharacters.add(i,listCloud!!.results!![i].name)
             }
             adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
             binding.charactersRecyclerView.adapter = adapter
@@ -65,7 +80,8 @@ class SearchFragment : Fragment() {
         }
 
         binding.next.setOnClickListener {
-            if (list!!.next !=null){
+            if (listCloud!!.next !=null){
+                /*
                 scope.launch {
                     urlId++
                     list =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
@@ -73,20 +89,25 @@ class SearchFragment : Fragment() {
                     for(i in list!!.results!!.indices){
                         listOfCharacters.add(i,list!!.results!![i].name)
                     }
+                    viewModel.nextAndPreviousCharacterListPage(urlId)
                     adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
                     adapter!!.setPage(urlId-1)
                     binding.charactersRecyclerView.adapter = adapter
                 }
+
+                 */
+                listCloud = viewModel.nextAndPreviousCharacterListPage(urlId)
             }
+
         }
         binding.previous.setOnClickListener {
-            if (list!!.previous !=null){
+            if (listCloud!!.previous !=null){
                 scope.launch {
                     urlId--
-                    list =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
+                    listCloud =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
                     val listOfCharacters:MutableList<String> = mutableListOf()
-                    for(i in list!!.results!!.indices){
-                        listOfCharacters.add(i,list!!.results!![i].name)
+                    for(i in listCloud!!.results!!.indices){
+                        listOfCharacters.add(i,listCloud!!.results!![i].name)
                     }
                     adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
                     adapter!!.setPage(urlId-1)
