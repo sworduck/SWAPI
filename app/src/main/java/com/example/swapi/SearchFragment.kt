@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import com.example.swapi.data.api.CharacterService
+import com.example.swapi.data.net.CharacterListCloud
 import com.example.swapi.databinding.SearchFragmentBinding
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -81,13 +83,13 @@ class SearchFragment : Fragment() {
 
         binding.next.setOnClickListener {
             if (listCloud!!.next !=null){
-                /*
+
                 scope.launch {
                     urlId++
-                    list =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
+                    listCloud =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
                     val listOfCharacters:MutableList<String> = mutableListOf()
-                    for(i in list!!.results!!.indices){
-                        listOfCharacters.add(i,list!!.results!![i].name)
+                    for(i in listCloud!!.results!!.indices){
+                        listOfCharacters.add(i,listCloud!!.results!![i].name)
                     }
                     viewModel.nextAndPreviousCharacterListPage(urlId)
                     adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
@@ -95,8 +97,8 @@ class SearchFragment : Fragment() {
                     binding.charactersRecyclerView.adapter = adapter
                 }
 
-                 */
-                listCloud = viewModel.nextAndPreviousCharacterListPage(urlId)
+
+                //listCloud = viewModel.nextAndPreviousCharacterListPage(urlId)
             }
 
         }
