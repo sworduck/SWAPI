@@ -10,6 +10,8 @@ import androidx.databinding.DataBindingUtil
 import com.example.swapi.databinding.SearchFragmentBinding
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import io.realm.Realm
+import io.realm.RealmConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -41,23 +43,33 @@ class SearchFragment : Fragment() {
 
         viewModel = ViewModelProvider(this)[SearchViewModel::class.java]
 
+        Realm.init(context)
+        Realm.setDefaultConfiguration(
+            RealmConfiguration.Builder()
+                .allowWritesOnUiThread(true)
+                .allowQueriesOnUiThread(true)
+                .deleteRealmIfMigrationNeeded()
+                .build()
+        )
 
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .build()
         val service = retrofit.create(CharacterService::class.java)
         val gson = Gson()
-        val typelist = object: TypeToken<CharacterList>(){}.type
+        val typelist = object: TypeToken<CharacterCloudList>(){}.type
         val scope = CoroutineScope(Job() + Main)
-        var list: CharacterList? = null
+        var cloudList: CharacterCloudList? = null
+        var dataList: List<CharacterData>? = null
         adapter = RecyclerSearchFragmentAdapter(mutableListOf())
         binding.charactersRecyclerView.adapter = adapter
 
+
         scope.launch {
-            list =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
+            cloudList =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
             val listOfCharacters:MutableList<String> = mutableListOf()
-            for(i in list!!.results!!.indices){
-                listOfCharacters.add(i,list!!.results!![i].name)
+            for(i in cloudList!!.results!!.indices){
+                listOfCharacters.add(i,cloudList!!.results!![i].name)
             }
             adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
             binding.charactersRecyclerView.adapter = adapter
@@ -65,13 +77,13 @@ class SearchFragment : Fragment() {
         }
 
         binding.next.setOnClickListener {
-            if (list!!.next !=null){
+            if (cloudList!!.next !=null){
                 scope.launch {
                     urlId++
-                    list =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
+                    dataList =viewModel.fetchCharacterList(urlId)
                     val listOfCharacters:MutableList<String> = mutableListOf()
-                    for(i in list!!.results!!.indices){
-                        listOfCharacters.add(i,list!!.results!![i].name)
+                    for(i in dataList!!.indices){
+                        listOfCharacters.add(i, dataList!![i].name)
                     }
                     adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
                     adapter!!.setPage(urlId-1)
@@ -80,13 +92,13 @@ class SearchFragment : Fragment() {
             }
         }
         binding.previous.setOnClickListener {
-            if (list!!.previous !=null){
+            if (cloudList!!.previous !=null){
                 scope.launch {
                     urlId--
-                    list =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
+                    cloudList =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
                     val listOfCharacters:MutableList<String> = mutableListOf()
-                    for(i in list!!.results!!.indices){
-                        listOfCharacters.add(i,list!!.results!![i].name)
+                    for(i in cloudList!!.results!!.indices){
+                        listOfCharacters.add(i,cloudList!!.results!![i].name)
                     }
                     adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
                     adapter!!.setPage(urlId-1)

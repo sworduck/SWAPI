@@ -18,5 +18,5 @@ open class CharacterDb(): RealmObject(){
     var height = "0"
     var mass = "0"
     var homeworld = "0"
-    //fun map(mapper: CharacterCacheMapper) = CharacterData(id,name,height,mass,homeworld)
+    fun map() = CharacterData(id,name,height,mass,homeworld)
 }
