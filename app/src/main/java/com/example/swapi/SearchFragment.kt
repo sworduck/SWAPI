@@ -80,7 +80,8 @@ class SearchFragment : Fragment() {
             if (cloudList!!.next !=null){
                 scope.launch {
                     urlId++
-                    dataList =viewModel.fetchCharacterList(urlId)
+                    //dataList =viewModel.fetchCharacterList(urlId)
+                    cloudList =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
                     val listOfCharacters:MutableList<String> = mutableListOf()
                     for(i in dataList!!.indices){
                         listOfCharacters.add(i, dataList!![i].name)
