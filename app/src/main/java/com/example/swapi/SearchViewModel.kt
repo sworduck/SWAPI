@@ -1,15 +1,80 @@
 package com.example.swapi
 
+import android.util.Log
+import android.widget.Toast
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import androidx.lifecycle.liveData
+import com.example.swapi.repository.MainRepository
+import com.example.swapi.utilis.Resource
 import io.realm.Realm
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import retrofit2.Retrofit
 
-class SearchViewModel : ViewModel() {
+class SearchViewModel(private val mainRepository: MainRepository) : ViewModel() {
+        fun getCharacterList(page: Int) = liveData(Dispatchers.IO) {
+                emit(Resource.loading(data = null))
+                try {
+                        emit(Resource.success(data = mainRepository.getCharacterList(page)))
+                } catch (exception: Exception) {
+                        emit(Resource.error(data = null, message = exception.message ?: "Error Occurred!"))
+                }
+        }
+
+        private fun checkDatabase(): Boolean {
+                /*
+                var hasData: Boolean= false
+                val mRealm = Realm.getDefaultInstance()
+                mRealm!!.executeTransaction { realm ->
+                        val rows = realm.where(Data::class.java).findAll()
+                        hasData = rows.size > 0
+                }
+                return hasData
+
+                 */
+                return true
+        }
+
+        private fun saveData() {
+                /*
+                val mRealm = Realm.getDefaultInstance()
+                mRealm!!.executeTransactionAsync({ bgRealm ->
+                        for (i in languageResponse.data!!.indices) {
+                                val datum = bgRealm.createObject(Data::class.java)
+                                datum.key=languageResponse.data!![i].key
+                                datum.code=languageResponse.data!![i].code
+                                datum.lang=languageResponse.data!![i].lang
+                                bgRealm.insert(datum)
+                        }
+                },
+                        {
+                                Toast.makeText(mContext,"Data insert into Database", Toast.LENGTH_LONG).show()
+                                Log.d("status---->>>>", "Success")
+                        })
+
+                { // Transaction failed and was automatically canceled.
+                        Toast.makeText(mContext,"Failed to data insert into Database", Toast.LENGTH_LONG).show()
+                        Log.d("status", "failed")
+                }
+
+                 */
+        }
+
+
+        fun fetchDataFromDB(){
+                /*
+                val mRealm = Realm.getDefaultInstance()
+                val mRealmLiveData = mRealm.where(Data::class.java).findAllAsync().asLiveData()
+                list = Transformations.map(mRealmLiveData) {
+                                realmResult ->
+                        mRealm.copyFromRealm(realmResult)
+
+                }
+                Log.d("status---->>>>", list.toString())
+
+                 */
+        }
+
+        /*
         private val BASE_URL = "https://swapi.dev/api/"
         private fun provideRealm():Realm = Realm.getDefaultInstance()
         suspend fun fetchCharacterList(page:Int):List<CharacterData>{
@@ -52,6 +117,8 @@ class SearchViewModel : ViewModel() {
                 }
                 return cloudList.results
         }
+
+         */
 }
 
 /*

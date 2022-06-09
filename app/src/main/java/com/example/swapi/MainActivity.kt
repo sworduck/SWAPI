@@ -55,14 +55,16 @@ class MainActivity : AppCompatActivity() {
         NavigationUI.setupWithNavController(bottomNav, navController);
 
          */
-
+        /*
         recyclerView = findViewById(R.id.recyclerview)
         progressBar = findViewById(R.id.progresbar)
 
         setupViewModel()
         setupUI()
         setupObservers()
-        /*
+
+         */
+
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNav.menu.getItem(0).isCheckable = true
         setFragment(SearchFragment())
@@ -80,20 +82,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-         */
+
 
 
 
     }
 
-    /*
+
     fun setFragment(fr : Fragment){
         val frag = supportFragmentManager.beginTransaction()
         frag.replace(R.id.fragment,fr)
         frag.commit()
     }
 
-     */
+
 
 
     private fun setupViewModel() {

@@ -1,22 +1,23 @@
 package com.example.swapi
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.*
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.swapi.adapter.SearchFragmentAdapter
+import com.example.swapi.api.ApiHelper
+import com.example.swapi.api.RetrofitBuilder
+import com.example.swapi.base.SearchViewModelFactory
 import com.example.swapi.databinding.SearchFragmentBinding
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import io.realm.Realm
-import io.realm.RealmConfiguration
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import retrofit2.Retrofit
+import com.example.swapi.utilis.Status
 
 class SearchFragment : Fragment() {
     companion object {
@@ -31,8 +32,18 @@ class SearchFragment : Fragment() {
 
     private lateinit var binding: SearchFragmentBinding
 
-    private var adapter:RecyclerSearchFragmentAdapter? = null
+    private var adapter:SearchFragmentAdapter? = null
 
+    private var recyclerView:RecyclerView? = null
+    private var progressBar:ProgressBar? = null
+
+    private var page: MutableLiveData<Int> = MutableLiveData(1)
+
+    /*
+    viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
+   binding.scoreText.text = newScore.toString()
+})
+     */
 
 
     override fun onCreateView(
@@ -41,7 +52,30 @@ class SearchFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater,R.layout.search_fragment,container,false)
 
-        viewModel = ViewModelProvider(this)[SearchViewModel::class.java]
+        //viewModel = ViewModelProvider(this)[SearchViewModel::class.java]
+
+        recyclerView = binding.charactersRecyclerView
+
+        progressBar = binding.progresbar
+
+        //page.value = 1
+
+        setupViewModel()
+        setupUI()
+
+        page.observe(viewLifecycleOwner, Observer {
+            setupObservers(it)
+        })
+
+        binding.next.setOnClickListener {
+            page.value = (page.value)?.plus(1)
+        }
+
+        binding.previous.setOnClickListener {
+            page.value = (page.value)?.minus(1)
+        }
+
+        /*
 
         Realm.init(context)
         Realm.setDefaultConfiguration(
@@ -108,12 +142,67 @@ class SearchFragment : Fragment() {
             }
         }
 
-
-
+         */
         //binding.charactersRecyclerView.adapter = RecyclerSearchFragmentAdapter(listOf(b))
         return binding.root
     }
+    private fun setupViewModel() {
+        /*
+        viewModel = ViewModelProviders.of(
+            this,
+            SearchViewModelFactory(ApiHelper(RetrofitBuilder.apiService))
+        ).get(SearchViewModel::class.java)
+         */
+        viewModel = ViewModelProvider(this,SearchViewModelFactory(ApiHelper(RetrofitBuilder.apiService)))
+            .get(SearchViewModel::class.java)
 
+        // With ViewModelFactory
+        //val viewModel = ViewModelProvider(this, YourViewModelFactory).get(YourViewModel::class.java)
+        //Without ViewModelFactory
+        //val viewModel = ViewModelProvider(this).get(YourViewModel::class.java)
+    }
+
+    private fun setupUI() {
+        recyclerView!!.layoutManager = LinearLayoutManager(activity)
+        adapter = SearchFragmentAdapter(arrayListOf())
+        recyclerView!!.addItemDecoration(
+            DividerItemDecoration(
+                recyclerView!!.context,
+                (recyclerView!!.layoutManager as LinearLayoutManager).orientation
+            )
+        )
+        recyclerView!!.adapter = adapter
+    }
+
+    private fun setupObservers(page:Int) {
+        viewModel.getCharacterList(page).observe(viewLifecycleOwner, Observer {
+            it?.let { resource ->
+                when (resource.status) {
+                    Status.SUCCESS -> {
+                        recyclerView!!.visibility = View.VISIBLE
+                        progressBar!!.visibility = View.GONE
+                        resource.data?.let { users -> retrieveList(users.results!!) }
+                    }
+                    Status.ERROR -> {
+                        recyclerView!!.visibility = View.VISIBLE
+                        progressBar!!.visibility = View.GONE
+                        Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
+                    }
+                    Status.LOADING -> {
+                        progressBar!!.visibility = View.VISIBLE
+                        recyclerView!!.visibility = View.GONE
+                    }
+                }
+            }
+        })
+    }
+
+    private fun retrieveList(users: List<CharacterCloud>) {
+        adapter.apply {
+            this!!.addCharacterList(users)
+            this.notifyDataSetChanged()
+        }
+    }
 
 
 }
