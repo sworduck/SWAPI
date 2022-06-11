@@ -1,6 +1,8 @@
 package com.example.swapi
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +19,13 @@ import com.example.swapi.api.ApiHelper
 import com.example.swapi.api.RetrofitBuilder
 import com.example.swapi.base.SearchViewModelFactory
 import com.example.swapi.databinding.SearchFragmentBinding
+import com.example.swapi.utilis.Resource
 import com.example.swapi.utilis.Status
+import io.realm.Realm
+import io.realm.RealmConfiguration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SearchFragment : Fragment() {
     companion object {
@@ -38,6 +46,7 @@ class SearchFragment : Fragment() {
     private var progressBar:ProgressBar? = null
 
     private var page: MutableLiveData<Int> = MutableLiveData(1)
+    private var previousPage = 0
 
     /*
     viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
@@ -59,7 +68,7 @@ class SearchFragment : Fragment() {
         progressBar = binding.progresbar
 
         //page.value = 1
-
+        provide(requireContext())     //ДЛЯ БД
         setupViewModel()
         setupUI()
 
@@ -68,10 +77,12 @@ class SearchFragment : Fragment() {
         })
 
         binding.next.setOnClickListener {
+            previousPage = page.value!!
             page.value = (page.value)?.plus(1)
         }
 
         binding.previous.setOnClickListener {
+            previousPage = page.value!!
             page.value = (page.value)?.minus(1)
         }
 
@@ -179,14 +190,46 @@ class SearchFragment : Fragment() {
             it?.let { resource ->
                 when (resource.status) {
                     Status.SUCCESS -> {
+                        Log.i("TAG", "Status.SUCCESS start")
                         recyclerView!!.visibility = View.VISIBLE
                         progressBar!!.visibility = View.GONE
-                        resource.data?.let { users -> retrieveList(users.results!!) }
+                        resource.data?.let { characterDataList -> retrieveList(characterDataList) }
+                        //СОХРАНЕНИЕ В БД
+                            if(!viewModel.checkDatabase(page))
+                            viewModel.saveData(resource.data!!, page)
+
+                        //viewModel.saveData(resource.data!!, page)
+                        /*
+                        if(!viewModel.checkDatabase(page)) {
+                            viewModel.saveData(resource.data!!, page)//это саспенд функция должна быть внутри вьюмодел
+                            Log.i("TAG", "после сейва дб")
+                        }
+
+                         */
+                        //val datafromdb = viewModel.realm.where(CharacterDb::class.java).findAllAsync()
+                        //Log.i("TAG","${datafromdb}")
+                        Log.i("TAG", "Status.SUCCESS finish")
                     }
                     Status.ERROR -> {
-                        recyclerView!!.visibility = View.VISIBLE
-                        progressBar!!.visibility = View.GONE
-                        Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
+                        Log.i("TAG", "Status.ERROR start")
+                        if(viewModel.checkDatabase(page)) {//incorrect db thread
+                            Log.i("TAG", "Status.ERROR db start")
+                            retrieveList(viewModel.fetchDataFromDB(page)!!.map { characterDb ->
+                                characterDb.map()
+                            })
+                            recyclerView!!.visibility = View.VISIBLE
+                            progressBar!!.visibility = View.GONE
+                            Log.i("TAG", "Status.ERROR db finish: ${it.message}")
+                        }
+                        else {
+                            this.page.value = previousPage
+                            Log.i("TAG", "Status.ERROR error start")
+                            recyclerView!!.visibility = View.VISIBLE
+                            progressBar!!.visibility = View.GONE
+                            Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
+                            Log.i("TAG", "Status.ERROR error finish: ${it.message}")
+                        }
+                        Log.i("TAG", "Status.ERROR finish")
                     }
                     Status.LOADING -> {
                         progressBar!!.visibility = View.VISIBLE
@@ -197,11 +240,20 @@ class SearchFragment : Fragment() {
         })
     }
 
-    private fun retrieveList(users: List<CharacterCloud>) {
+    private fun retrieveList(characterList: List<CharacterData>) {
         adapter.apply {
-            this!!.addCharacterList(users)
+            this!!.addCharacterList(characterList)
             this.notifyDataSetChanged()
         }
+    }
+
+    private fun provide(context: Context){
+        Realm.init(context)
+        val config = RealmConfiguration.Builder()
+            .name("myrealm.realm")
+            //.encryptionKey(getKey())
+            .build()
+        Realm.setDefaultConfiguration(config)
     }
 
 

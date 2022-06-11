@@ -6,13 +6,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.CharacterCloud
+import com.example.swapi.CharacterData
 import com.example.swapi.R
 
-class SearchFragmentAdapter(private val characterList: ArrayList<CharacterCloud>) : RecyclerView.Adapter<SearchFragmentAdapter.DataViewHolder>() {
+class SearchFragmentAdapter(private val characterList: ArrayList<CharacterData>) : RecyclerView.Adapter<SearchFragmentAdapter.DataViewHolder>() {
 
     class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        fun bind(user: CharacterCloud) {
+        fun bind(user: CharacterData) {
             itemView.apply {
                 findViewById<Button>(R.id.name).text = user.name
             }
@@ -31,7 +32,7 @@ class SearchFragmentAdapter(private val characterList: ArrayList<CharacterCloud>
         holder.bind(characterList[position])
     }
 
-    fun addCharacterList(users: List<CharacterCloud>) {
+    fun addCharacterList(users: List<CharacterData>) {
         this.characterList.apply {
             clear()
             addAll(users)
