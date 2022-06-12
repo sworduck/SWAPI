@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/action_search"
+    <item android:id="@+id/searchFragment"
         android:title="@string/menu_search"
         android:icon="@drawable/ic_launcher_foreground" />
-    <item android:id="@+id/action_settings"
+    <item android:id="@+id/favoriteCharactersFragment"
         android:title="@string/favorite"
         android:icon="@drawable/ic_launcher_foreground" />
 </menu>

@@ -48,13 +48,13 @@ class MainActivity : AppCompatActivity() {
         //данные с сервера читаются, я могу прочесть одного человека, но не выходит преобразовать сразу список!!!
         //целый объект со списком также читается, но сам список почему-то null
 
-        /*
+
         val navController = this.findNavController(R.id.nav_host_fragment)
         val bottomNav:BottomNavigationView = findViewById(R.id.bottomNavigation)
         //bottomNav.setupWithNavController(navController)
         NavigationUI.setupWithNavController(bottomNav, navController);
 
-         */
+
         /*
         recyclerView = findViewById(R.id.recyclerview)
         progressBar = findViewById(R.id.progresbar)
@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity() {
 
          */
 
+        /*
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNav.menu.getItem(0).isCheckable = true
         setFragment(SearchFragment())
@@ -82,18 +83,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+         */
+
 
 
 
 
     }
 
-
+    /*
     fun setFragment(fr : Fragment){
         val frag = supportFragmentManager.beginTransaction()
         frag.replace(R.id.fragment,fr)
         frag.commit()
     }
+
+     */
 
 
 
