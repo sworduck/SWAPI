@@ -19,12 +19,9 @@ import com.example.swapi.api.ApiHelper
 import com.example.swapi.api.RetrofitBuilder
 import com.example.swapi.base.SearchViewModelFactory
 import com.example.swapi.databinding.SearchFragmentBinding
-import com.example.swapi.utilis.Resource
 import com.example.swapi.utilis.Status
 import io.realm.Realm
 import io.realm.RealmConfiguration
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SearchFragment : Fragment() {
@@ -38,7 +35,10 @@ class SearchFragment : Fragment() {
 
     private lateinit var viewModel: SearchViewModel
 
+    private lateinit var viewModelFavorite: FavoriteCharactersViewModel
+
     private lateinit var binding: SearchFragmentBinding
+
 
     private var adapter:SearchFragmentAdapter? = null
 
@@ -62,10 +62,14 @@ class SearchFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.search_fragment,container,false)
 
         //viewModel = ViewModelProvider(this)[SearchViewModel::class.java]
+            //вьюмодел в другом месте также определяется
 
         recyclerView = binding.charactersRecyclerView
 
         progressBar = binding.progresbar
+                                            //чтобы информация передавалась нужно передавать activity
+                                            //или requireActivity()
+        viewModelFavorite = ViewModelProvider(requireActivity())[FavoriteCharactersViewModel::class.java]
 
         //page.value = 1
         provide(requireContext())     //ДЛЯ БД
@@ -175,7 +179,7 @@ class SearchFragment : Fragment() {
 
     private fun setupUI() {
         recyclerView!!.layoutManager = LinearLayoutManager(activity)
-        adapter = SearchFragmentAdapter(arrayListOf())
+        adapter = SearchFragmentAdapter(arrayListOf(),viewModelFavorite)
         recyclerView!!.addItemDecoration(
             DividerItemDecoration(
                 recyclerView!!.context,

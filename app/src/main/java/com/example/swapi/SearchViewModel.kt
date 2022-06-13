@@ -1,13 +1,15 @@
 package com.example.swapi
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.example.swapi.repository.MainRepository
 import com.example.swapi.utilis.Resource
 import io.realm.Realm
-import io.realm.kotlin.executeTransactionAwait
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+
 
 class SearchViewModel(private val mainRepository: MainRepository) : ViewModel() {
 

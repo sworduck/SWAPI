@@ -5,17 +5,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
-import com.example.swapi.CharacterCloud
 import com.example.swapi.CharacterData
+import com.example.swapi.FavoriteCharactersViewModel
 import com.example.swapi.R
+import com.example.swapi.SearchViewModel
+import java.util.*
+import kotlin.collections.ArrayList
 
-class SearchFragmentAdapter(private val characterList: ArrayList<CharacterData>) : RecyclerView.Adapter<SearchFragmentAdapter.DataViewHolder>() {
+class SearchFragmentAdapter(
+    private val characterList: ArrayList<CharacterData>,
+    private val viewModel: FavoriteCharactersViewModel
+) : RecyclerView.Adapter<SearchFragmentAdapter.DataViewHolder>() {
+
 
     class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        fun bind(user: CharacterData) {
+        fun bind(characterData: CharacterData, viewModel: FavoriteCharactersViewModel?) {
             itemView.apply {
-                findViewById<Button>(R.id.name).text = user.name
+                findViewById<Button>(R.id.name).text = characterData.name
+                findViewById<Button>(R.id.favorite).setOnClickListener {
+                    viewModel!!.addElementFavoriteList(characterData)
+                }
             }
         }
     }
@@ -28,8 +38,7 @@ class SearchFragmentAdapter(private val characterList: ArrayList<CharacterData>)
     override fun getItemCount(): Int = characterList.size
 
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) {
-
-        holder.bind(characterList[position])
+        holder.bind(characterList[position],viewModel)
     }
 
     fun addCharacterList(users: List<CharacterData>) {
