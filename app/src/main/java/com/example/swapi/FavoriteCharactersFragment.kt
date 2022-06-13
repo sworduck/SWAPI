@@ -2,12 +2,14 @@ package com.example.swapi
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import com.example.swapi.adapter.SearchFragmentAdapter
 import com.example.swapi.api.ApiHelper
 import com.example.swapi.api.RetrofitBuilder
 import com.example.swapi.base.SearchViewModelFactory
@@ -20,6 +22,8 @@ class FavoriteCharactersFragment : Fragment() {
 
     private lateinit var binding: FavoriteCharactersFragmentBinding
 
+    private lateinit var adapter:SearchFragmentAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -27,6 +31,12 @@ class FavoriteCharactersFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.favorite_characters_fragment,container,false)
 
         viewModel = ViewModelProvider(requireActivity())[FavoriteCharactersViewModel::class.java]
+
+        var recyclerView = binding.favoriteRecyclerView
+
+        adapter = SearchFragmentAdapter(arrayListOf(),viewModel)
+        recyclerView.adapter = adapter
+
         /*
         viewModel = ViewModelProvider(this,
             SearchViewModelFactory(ApiHelper(RetrofitBuilder.apiService))
@@ -35,11 +45,19 @@ class FavoriteCharactersFragment : Fragment() {
          */
         //viewModel.addElementFavoriteList(CharacterData(0,"1","1","1","1"))
         viewModel.getSelected()!!.observe(viewLifecycleOwner, Observer{
-            binding.favtextview.text = "${it.size}"
+            retrieveList(it)
+            Log.i("TAG","${it.size}")
         })
 
 
         return binding.root
+    }
+
+    private fun retrieveList(characterList: List<CharacterData>) {
+        adapter.apply {
+            this!!.addCharacterList(characterList)
+            this.notifyDataSetChanged()
+        }
     }
 
 
