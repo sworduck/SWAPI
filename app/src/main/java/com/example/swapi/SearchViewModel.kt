@@ -19,7 +19,7 @@ class SearchViewModel(private val mainRepository: MainRepository) : ViewModel() 
                         //преобразовать в characterData в листе
                         var result = mainRepository.getCharacterList(page).results
                         emit(Resource.success(data = result!!.mapIndexed {
-                                        index, characterCloud -> characterCloud.map(index)
+                                        index, characterCloud -> characterCloud.map(index+(page-1)*10)
                         }))
                          //НЕ ПРОВЕРЕНО ЭКСПЕРЕМЕНТАЛЬНО
                                 /*
@@ -33,12 +33,33 @@ class SearchViewModel(private val mainRepository: MainRepository) : ViewModel() 
                 }
         }
 
-        fun checkDatabase(page: Int): Boolean {
+        fun checkDatabase(page: Int, size: Int): Boolean {
                 val realm = Realm.getDefaultInstance()
                 var check = true
                         val rows = realm.where(CharacterDb::class.java).between("id",
                                 0+(page-1)*10,9+(page-1)*10).findAll()
+                        var rows2 = realm.where(CharacterDb::class.java).findAll()
+                        check = rows.size==size
+                /*
+                var check = false
+                realm!!.executeTransaction { realm ->
+                        val rows = realm.where(CharacterDb::class.java).findAll()
                         check = rows.size>0
+                }
+                return check
+
+                 */
+                return check
+        }
+        fun checkDatabase(page: Int): Boolean {
+                val realm = Realm.getDefaultInstance()
+                var check = true
+                val rows = realm.where(CharacterDb::class.java).between("id",
+                        0+(page-1)*10,9+(page-1)*10).findAll()
+                check = if(page == 9)
+                        rows.size==2
+                else
+                        rows.size==10
                 /*
                 var check = false
                 realm!!.executeTransaction { realm ->
@@ -78,26 +99,58 @@ class SearchViewModel(private val mainRepository: MainRepository) : ViewModel() 
                 //сейчас добавление происходит без ошибок
                 Log.i("TAG", "transaction start")
                 realm.executeTransactionAsync { r: Realm ->
-                        val datafromdb = r.where(CharacterDb::class.java).findAll()
-                        Log.i("TAG", "inside transaction start")
-                        //проверить createObject
-                        for(i in 0..9) {
-                                val characterDb =
-                                        r.createObject(
-                                                CharacterDb::class.java,
-                                                characterDataList[i].id+(page-1)*10
-                                        )
-                                //characterDb.id = characterDataList[0].id
-                                characterDb.name = characterDataList[i].name
-                                characterDb.height = characterDataList[i].height
-                                characterDb.mass = characterDataList[i].mass
-                                characterDb.homeworld = characterDataList[i].homeworld
-                                Log.i("TAG", "Db save finish${0}")
-                                //Доступ к объектам Realm возможен только в том потоке, в котором они были созданы.
-                                r.insertOrUpdate(characterDb)
-                                //val datafromdb = r.where(CharacterDb::class.java).findAll()
-                                Log.i("TAG", "inside transaction finish")
+                        val list = r.where(CharacterDb::class.java).equalTo("type","favorite").findAll().map {
+                                it.id
                         }
+                        var datafromdb = r.where(CharacterDb::class.java).findAll()
+                        Log.i("TAG", "${datafromdb}")
+                        //проверить createObject
+                        if(list.isEmpty()){
+                                for(i in 0..9) {
+                                        val characterDb =
+                                                r.createObject(
+                                                        CharacterDb::class.java,
+                                                        characterDataList[i].id
+                                                )
+                                        //characterDb.id = characterDataList[0].id
+                                        characterDb.name = characterDataList[i].name
+                                        characterDb.height = characterDataList[i].height
+                                        characterDb.mass = characterDataList[i].mass
+                                        characterDb.homeworld = characterDataList[i].homeworld
+                                        characterDb.type = characterDataList[i].type
+                                        Log.i("TAG", "Db save finish${0}")
+                                        //Доступ к объектам Realm возможен только в том потоке, в котором они были созданы.
+                                        r.insertOrUpdate(characterDb)
+                                        //val datafromdb = r.where(CharacterDb::class.java).findAll()
+                                        Log.i("TAG", "inside transaction finish")
+                                }
+                                datafromdb = r.where(CharacterDb::class.java).findAll()
+                                Log.i("TAG", "${datafromdb}")
+                        }
+                        else{
+                                for(i in 0..9) {
+                                        if(i+(page - 1) * 10 !in list) {
+                                                val characterDb =
+                                                        r.createObject(
+                                                                CharacterDb::class.java,
+                                                                characterDataList[i].id
+                                                        )
+                                                //characterDb.id = characterDataList[0].id
+                                                characterDb.name = characterDataList[i].name
+                                                characterDb.height = characterDataList[i].height
+                                                characterDb.mass = characterDataList[i].mass
+                                                characterDb.homeworld =
+                                                        characterDataList[i].homeworld
+                                                characterDb.type = characterDataList[i].type
+                                                Log.i("TAG", "Db save finish${0}")
+                                                //Доступ к объектам Realm возможен только в том потоке, в котором они были созданы.
+                                                r.insertOrUpdate(characterDb)
+                                                //val datafromdb = r.where(CharacterDb::class.java).findAll()
+                                                Log.i("TAG", "inside transaction finish")
+                                        }
+                                }
+                        }
+
 
                 }
                 Log.i("TAG", "transaction finish")

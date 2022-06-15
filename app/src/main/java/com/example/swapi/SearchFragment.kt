@@ -22,7 +22,6 @@ import com.example.swapi.databinding.SearchFragmentBinding
 import com.example.swapi.utilis.Status
 import io.realm.Realm
 import io.realm.RealmConfiguration
-import kotlinx.coroutines.launch
 
 class SearchFragment : Fragment() {
     companion object {
@@ -72,7 +71,8 @@ class SearchFragment : Fragment() {
         viewModelFavorite = ViewModelProvider(requireActivity())[FavoriteCharactersViewModel::class.java]
 
         //page.value = 1
-        provide(requireContext())     //ДЛЯ БД
+        provide(requireContext())
+        clearDb()//ДЛЯ БД
         setupViewModel()
         setupUI()
 
@@ -179,7 +179,7 @@ class SearchFragment : Fragment() {
 
     private fun setupUI() {
         recyclerView!!.layoutManager = LinearLayoutManager(activity)
-        adapter = SearchFragmentAdapter(arrayListOf(),viewModelFavorite)
+        adapter = SearchFragmentAdapter(arrayListOf())//,viewModelFavorite)
         recyclerView!!.addItemDecoration(
             DividerItemDecoration(
                 recyclerView!!.context,
@@ -197,10 +197,15 @@ class SearchFragment : Fragment() {
                         Log.i("TAG", "Status.SUCCESS start")
                         recyclerView!!.visibility = View.VISIBLE
                         progressBar!!.visibility = View.GONE
-                        resource.data?.let { characterDataList -> retrieveList(characterDataList) }
+
+                        resource.data?.let { characterDataList ->
+                            retrieveList(checkFavoriteCharacterListInResponseFromServer(characterDataList,page)) }
                         //СОХРАНЕНИЕ В БД
-                            if(!viewModel.checkDatabase(page))
+
+                            if(!viewModel.checkDatabase(page,resource.data!!.size))
                             viewModel.saveData(resource.data!!, page)
+
+
 
                         //viewModel.saveData(resource.data!!, page)
                         /*
@@ -244,20 +249,48 @@ class SearchFragment : Fragment() {
         })
     }
 
+    private fun checkFavoriteCharacterListInResponseFromServer(characterList: List<CharacterData>,page: Int):List<CharacterData>{
+        var list:List<Int> =listOf()
+        Realm.getDefaultInstance().executeTransaction {realm->
+            list =
+                realm.where(CharacterDb::class.java).equalTo("type","favorite").findAll().map { characterDb ->
+                    characterDb.id
+                }
+        }
+        for(i in characterList.indices){
+            if(characterList[i].id in list){
+                characterList[i].type = "favorite"
+            }
+        }
+        return characterList
+    }
+
     private fun retrieveList(characterList: List<CharacterData>) {
         adapter.apply {
             this!!.addCharacterList(characterList)
             this.notifyDataSetChanged()
         }
+        Log.i("TAG","${characterList.map { it.type }}")
     }
 
     private fun provide(context: Context){
         Realm.init(context)
         val config = RealmConfiguration.Builder()
-            .name("myrealm.realm")
+            .name("characterdb.realm")
             //.encryptionKey(getKey())
+            .allowWritesOnUiThread(true)
             .build()
         Realm.setDefaultConfiguration(config)
+    }
+
+    private fun clearDb(){
+        var realm = Realm.getDefaultInstance()
+        //realm.where(CharacterDb::class.java).findAll().deleteAllFromRealm()
+        realm.executeTransactionAsync { r: Realm ->
+
+            r.where(CharacterDb::class.java).equalTo("type","default").findAll().deleteAllFromRealm()
+            //r.where(CharacterDb::class.java).findAll().deleteAllFromRealm()
+        }
     }
 
 
