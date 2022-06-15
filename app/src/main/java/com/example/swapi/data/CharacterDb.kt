@@ -1,6 +1,9 @@
-package com.example.swapi
+package com.example.swapi.data
 
-class CharacterData(){
+import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
+
+open class CharacterDb(): RealmObject(){
     constructor(_id:Int,_name:String,_height:String,_mass:String,_homeworld:String):this(){
         id = _id
         name = _name
@@ -16,10 +19,13 @@ class CharacterData(){
         homeworld = _homeworld
         type = _type
     }
+    @PrimaryKey
     var id = 0
+
     var name = "0"
     var height = "0"
     var mass = "0"
     var homeworld = "0"
-    var type = "default"// default and favorite
+    var type = "default"//default and favorite
+    fun map() = CharacterData(id,name,height,mass,homeworld,type)
 }

@@ -1,4 +1,4 @@
-package com.example.swapi
+package com.example.swapi.api
 
 import kotlinx.coroutines.Deferred
 import okhttp3.ResponseBody

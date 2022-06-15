@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
-import com.example.swapi.CharacterCloud
+import com.example.swapi.data.CharacterCloud
 import com.example.swapi.R
 
 class MainAdapter(private val users: ArrayList<CharacterCloud>) : RecyclerView.Adapter<MainAdapter.DataViewHolder>() {

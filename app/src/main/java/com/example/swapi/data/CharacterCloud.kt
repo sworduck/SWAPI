@@ -1,4 +1,4 @@
-package com.example.swapi
+package com.example.swapi.data
 
 import com.google.gson.annotations.SerializedName
 

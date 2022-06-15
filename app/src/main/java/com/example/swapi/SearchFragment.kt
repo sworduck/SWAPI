@@ -18,8 +18,12 @@ import com.example.swapi.adapter.SearchFragmentAdapter
 import com.example.swapi.api.ApiHelper
 import com.example.swapi.api.RetrofitBuilder
 import com.example.swapi.base.SearchViewModelFactory
+import com.example.swapi.data.CharacterData
+import com.example.swapi.data.CharacterDb
 import com.example.swapi.databinding.SearchFragmentBinding
 import com.example.swapi.utilis.Status
+import com.example.swapi.viewmodel.FavoriteCharactersViewModel
+import com.example.swapi.viewmodel.SearchViewModel
 import io.realm.Realm
 import io.realm.RealmConfiguration
 
@@ -47,11 +51,6 @@ class SearchFragment : Fragment() {
     private var page: MutableLiveData<Int> = MutableLiveData(1)
     private var previousPage = 0
 
-    /*
-    viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
-   binding.scoreText.text = newScore.toString()
-})
-     */
 
 
     override fun onCreateView(
@@ -60,8 +59,7 @@ class SearchFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater,R.layout.search_fragment,container,false)
 
-        //viewModel = ViewModelProvider(this)[SearchViewModel::class.java]
-            //вьюмодел в другом месте также определяется
+
 
         recyclerView = binding.charactersRecyclerView
 
@@ -89,92 +87,11 @@ class SearchFragment : Fragment() {
             previousPage = page.value!!
             page.value = (page.value)?.minus(1)
         }
-
-        /*
-
-        Realm.init(context)
-        Realm.setDefaultConfiguration(
-            RealmConfiguration.Builder()
-                .allowWritesOnUiThread(true)
-                .allowQueriesOnUiThread(true)
-                .deleteRealmIfMigrationNeeded()
-                .build()
-        )
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .build()
-        val service = retrofit.create(CharacterService::class.java)
-        val gson = Gson()
-        val typelist = object: TypeToken<CharacterCloudList>(){}.type
-        val scope = CoroutineScope(Job() + Main)
-        var cloudList: CharacterCloudList? = null
-        var dataList: List<CharacterData>? = null
-        adapter = RecyclerSearchFragmentAdapter(mutableListOf())
-        binding.charactersRecyclerView.adapter = adapter
-
-
-        scope.launch {
-            cloudList =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
-            val listOfCharacters:MutableList<String> = mutableListOf()
-            for(i in cloudList!!.results!!.indices){
-                listOfCharacters.add(i,cloudList!!.results!![i].name)
-            }
-            adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
-            binding.charactersRecyclerView.adapter = adapter
-
-        }
-
-        binding.next.setOnClickListener {
-            if (cloudList!!.next !=null){
-                scope.launch {
-                    urlId++
-                    //dataList =viewModel.fetchCharacterList(urlId)
-                    cloudList =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
-                    val listOfCharacters:MutableList<String> = mutableListOf()
-                    for(i in dataList!!.indices){
-                        listOfCharacters.add(i, dataList!![i].name)
-                    }
-                    adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
-                    adapter!!.setPage(urlId-1)
-                    binding.charactersRecyclerView.adapter = adapter
-                }
-            }
-        }
-        binding.previous.setOnClickListener {
-            if (cloudList!!.previous !=null){
-                scope.launch {
-                    urlId--
-                    cloudList =gson.fromJson(service.fetchCharacters(urlId).string(),typelist)
-                    val listOfCharacters:MutableList<String> = mutableListOf()
-                    for(i in cloudList!!.results!!.indices){
-                        listOfCharacters.add(i,cloudList!!.results!![i].name)
-                    }
-                    adapter = RecyclerSearchFragmentAdapter(listOfCharacters)
-                    adapter!!.setPage(urlId-1)
-                    binding.charactersRecyclerView.adapter = adapter
-                }
-            }
-        }
-
-         */
-        //binding.charactersRecyclerView.adapter = RecyclerSearchFragmentAdapter(listOf(b))
         return binding.root
     }
     private fun setupViewModel() {
-        /*
-        viewModel = ViewModelProviders.of(
-            this,
-            SearchViewModelFactory(ApiHelper(RetrofitBuilder.apiService))
-        ).get(SearchViewModel::class.java)
-         */
         viewModel = ViewModelProvider(this,SearchViewModelFactory(ApiHelper(RetrofitBuilder.apiService)))
             .get(SearchViewModel::class.java)
-
-        // With ViewModelFactory
-        //val viewModel = ViewModelProvider(this, YourViewModelFactory).get(YourViewModel::class.java)
-        //Without ViewModelFactory
-        //val viewModel = ViewModelProvider(this).get(YourViewModel::class.java)
     }
 
     private fun setupUI() {
@@ -194,7 +111,6 @@ class SearchFragment : Fragment() {
             it?.let { resource ->
                 when (resource.status) {
                     Status.SUCCESS -> {
-                        Log.i("TAG", "Status.SUCCESS start")
                         recyclerView!!.visibility = View.VISIBLE
                         progressBar!!.visibility = View.GONE
 
@@ -204,41 +120,21 @@ class SearchFragment : Fragment() {
 
                             if(!viewModel.checkDatabase(page,resource.data!!.size))
                             viewModel.saveData(resource.data!!, page)
-
-
-
-                        //viewModel.saveData(resource.data!!, page)
-                        /*
-                        if(!viewModel.checkDatabase(page)) {
-                            viewModel.saveData(resource.data!!, page)//это саспенд функция должна быть внутри вьюмодел
-                            Log.i("TAG", "после сейва дб")
-                        }
-
-                         */
-                        //val datafromdb = viewModel.realm.where(CharacterDb::class.java).findAllAsync()
-                        //Log.i("TAG","${datafromdb}")
-                        Log.i("TAG", "Status.SUCCESS finish")
                     }
                     Status.ERROR -> {
-                        Log.i("TAG", "Status.ERROR start")
                         if(viewModel.checkDatabase(page)) {//incorrect db thread
-                            Log.i("TAG", "Status.ERROR db start")
                             retrieveList(viewModel.fetchDataFromDB(page)!!.map { characterDb ->
                                 characterDb.map()
                             })
                             recyclerView!!.visibility = View.VISIBLE
                             progressBar!!.visibility = View.GONE
-                            Log.i("TAG", "Status.ERROR db finish: ${it.message}")
                         }
                         else {
                             this.page.value = previousPage
-                            Log.i("TAG", "Status.ERROR error start")
                             recyclerView!!.visibility = View.VISIBLE
                             progressBar!!.visibility = View.GONE
                             Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
-                            Log.i("TAG", "Status.ERROR error finish: ${it.message}")
                         }
-                        Log.i("TAG", "Status.ERROR finish")
                     }
                     Status.LOADING -> {
                         progressBar!!.visibility = View.VISIBLE
@@ -249,7 +145,7 @@ class SearchFragment : Fragment() {
         })
     }
 
-    private fun checkFavoriteCharacterListInResponseFromServer(characterList: List<CharacterData>,page: Int):List<CharacterData>{
+    private fun checkFavoriteCharacterListInResponseFromServer(characterList: List<CharacterData>, page: Int):List<CharacterData>{
         var list:List<Int> =listOf()
         Realm.getDefaultInstance().executeTransaction {realm->
             list =
@@ -267,10 +163,9 @@ class SearchFragment : Fragment() {
 
     private fun retrieveList(characterList: List<CharacterData>) {
         adapter.apply {
-            this!!.addCharacterList(characterList)
+            this!!.addCharacterList(characterList.sortedBy { it.id })
             this.notifyDataSetChanged()
         }
-        Log.i("TAG","${characterList.map { it.type }}")
     }
 
     private fun provide(context: Context){
@@ -285,11 +180,8 @@ class SearchFragment : Fragment() {
 
     private fun clearDb(){
         var realm = Realm.getDefaultInstance()
-        //realm.where(CharacterDb::class.java).findAll().deleteAllFromRealm()
         realm.executeTransactionAsync { r: Realm ->
-
             r.where(CharacterDb::class.java).equalTo("type","default").findAll().deleteAllFromRealm()
-            //r.where(CharacterDb::class.java).findAll().deleteAllFromRealm()
         }
     }
 

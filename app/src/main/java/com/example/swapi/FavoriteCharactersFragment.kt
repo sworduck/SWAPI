@@ -2,7 +2,6 @@ package com.example.swapi
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +10,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.swapi.adapter.SearchFragmentAdapter
-import com.example.swapi.api.ApiHelper
-import com.example.swapi.api.RetrofitBuilder
-import com.example.swapi.base.SearchViewModelFactory
+import com.example.swapi.data.CharacterData
+import com.example.swapi.data.CharacterDb
 import com.example.swapi.databinding.FavoriteCharactersFragmentBinding
+import com.example.swapi.viewmodel.FavoriteCharactersViewModel
 import io.realm.Realm
 
 class FavoriteCharactersFragment : Fragment() {
@@ -49,29 +48,6 @@ class FavoriteCharactersFragment : Fragment() {
                 characterDb.map()
             })
         })
-        /*
-        retrieveList(list.map { characterDb ->
-            characterDb.map()
-        })
-
-         */
-
-        /*
-        viewModel = ViewModelProvider(this,
-            SearchViewModelFactory(ApiHelper(RetrofitBuilder.apiService))
-        ).get(SearchViewModel::class.java)
-
-         */
-        //viewModel.addElementFavoriteList(CharacterData(0,"1","1","1","1"))
-        /*
-        viewModel.getSelected()!!.observe(viewLifecycleOwner, Observer{
-            retrieveList(it)
-            Log.i("TAG","${it.size}")
-        })
-
-         */
-
-
         return binding.root
     }
 

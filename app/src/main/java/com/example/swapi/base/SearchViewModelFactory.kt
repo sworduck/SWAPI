@@ -2,7 +2,7 @@ package com.example.swapi.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.swapi.SearchViewModel
+import com.example.swapi.viewmodel.SearchViewModel
 import com.example.swapi.api.ApiHelper
 import com.example.swapi.repository.MainRepository
 

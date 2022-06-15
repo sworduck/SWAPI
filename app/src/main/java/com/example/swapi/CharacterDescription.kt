@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import com.example.swapi.api.CharacterService
+import com.example.swapi.data.CharacterCloud
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +27,7 @@ class CharacterDescription : AppCompatActivity() {
         val gson = Gson()
         val typelist = object: TypeToken<CharacterCloud>(){}.type
         val scope = CoroutineScope(Job() + Dispatchers.Main)
-        var character:CharacterCloud? =null
+        var character: CharacterCloud? =null
 
 
 
