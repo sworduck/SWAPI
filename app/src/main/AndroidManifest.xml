@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SWAPI" >
         <activity
-            android:name=".CharacterDescription"
+            android:name=".CharacterDescriptionActivity"
             android:exported="false"
             android:label="@string/title_activity_character_description"
             android:theme="@style/Theme.SWAPI.NoActionBar" />

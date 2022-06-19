@@ -1,4 +1,4 @@
-package com.example.swapi
+package com.example.swapi.data
 
 import com.google.gson.annotations.SerializedName
 
@@ -22,7 +22,7 @@ data class CharacterCloud(
     @SerializedName("homeworld")
     val homeworld: String,
     @SerializedName("films")
-    private val films: List<String>?=null,
+    val films: List<String>?=null,
     @SerializedName("species")
     private val species: List<String>?=null,
     @SerializedName("vehicles")

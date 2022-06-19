@@ -16,11 +16,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <ImageButton
         android:id="@+id/favorite"
-        android:layout_width="85dp"
+        android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginStart="324dp"
+        android:background="@drawable/ic_baseline_star_border_24"
         android:clickable="false"
         android:text="@string/favorite"
         app:layout_constraintBottom_toBottomOf="parent"
