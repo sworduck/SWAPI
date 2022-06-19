@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitBuilder {
 
-    private const val BASE_URL = "https://swapi.dev/api/"
+    private const val BASE_URL = "https://swapi.dev/"
 
     private fun getRetrofit(): Retrofit {
         return Retrofit.Builder()

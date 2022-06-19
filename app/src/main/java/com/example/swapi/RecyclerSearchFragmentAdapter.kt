@@ -29,7 +29,7 @@ class RecyclerSearchFragmentAdapter(private val listCharactersName:List<String>)
         holder.textView.text = listCharactersName[position]
         holder.textView.setOnClickListener {
             val activity = holder.itemView.context as Activity
-            val intent = Intent(activity,CharacterDescription::class.java)
+            val intent = Intent(activity,CharacterDescriptionActivity::class.java)
             intent.putExtra("id",position+page*10)
             activity.startActivity(intent)
         }

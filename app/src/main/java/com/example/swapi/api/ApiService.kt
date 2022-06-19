@@ -9,12 +9,12 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-    @GET("people")
+    @GET("api/people")
     suspend fun fetchCharacters(@Query("page") id: Int): CharacterCloudList
 
-    @GET("people")
+    @GET("api/people")
     fun getTripCoord(@Query("id") id: Int): Deferred<JSONArray>
 
-    @GET("people/{id}")
-    suspend fun fetchCharacter(@Path("id")id: Int): ResponseBody
+    @GET("api/people/{id}")
+    suspend fun fetchCharacter(@Path("id") id: Int): ResponseBody
 }

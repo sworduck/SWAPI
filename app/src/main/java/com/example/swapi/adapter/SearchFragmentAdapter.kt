@@ -1,5 +1,7 @@
 package com.example.swapi.adapter
 
+import android.app.Activity
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,35 +21,43 @@ class SearchFragmentAdapter(
 
     class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        fun bind(characterData: CharacterData){//, viewModel: FavoriteCharactersViewModel?) {
+        fun bind(characterData: CharacterData) {//, viewModel: FavoriteCharactersViewModel?) {
             itemView.apply {
                 findViewById<Button>(R.id.name).text = characterData.name
+                findViewById<Button>(R.id.name).setOnClickListener {
+                    val activity = itemView.context as Activity
+                    val intent = Intent(activity, CharacterDescriptionActivity::class.java)
+                    intent.putExtra("id", characterData.id)
+                    activity.startActivity(intent)
+                }
                 findViewById<ImageButton>(R.id.favorite).setOnClickListener {
                     val realm = Realm.getDefaultInstance()
-                    if(characterData.type == "default"){
+                    if (characterData.type == "default") {
                         //переключение персонажа с default на favorite
                         findViewById<ImageButton>(R.id.favorite).setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
                         //characterData.type = "favorite"
-                        realm.executeTransaction {r->
-                           val characterData = r.where(CharacterDb::class.java).equalTo("id",characterData.id).findFirst()
+                        realm.executeTransaction { r ->
+                            val characterData =
+                                r.where(CharacterDb::class.java).equalTo("id", characterData.id)
+                                    .findFirst()
                             characterData!!.type = "favorite"
                         }
-                    }
-                    else{
+                    } else {
                         //переключение персонажа с favorite на default
                         findViewById<ImageButton>(R.id.favorite).setBackgroundResource(R.drawable.ic_baseline_star_border_24)
-                        realm.executeTransaction {r->
-                            val characterData = r.where(CharacterDb::class.java).equalTo("id",characterData.id).findFirst()
+                        realm.executeTransaction { r ->
+                            val characterData =
+                                r.where(CharacterDb::class.java).equalTo("id", characterData.id)
+                                    .findFirst()
                             characterData!!.type = "default"
                         }
                     }
 
 
                 }
-                if(characterData.type == "default"){
+                if (characterData.type == "default") {
                     findViewById<ImageButton>(R.id.favorite).setBackgroundResource(R.drawable.ic_baseline_star_border_24)
-                }
-                else{
+                } else {
                     findViewById<ImageButton>(R.id.favorite).setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
                 }
 
