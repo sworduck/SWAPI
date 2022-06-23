@@ -16,23 +16,28 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.adapter.SearchFragmentAdapter
 import com.example.swapi.api.ApiHelper
+import com.example.swapi.api.CharacterService
 import com.example.swapi.api.RetrofitBuilder
 import com.example.swapi.base.SearchViewModelFactory
-import com.example.swapi.data.CharacterData
-import com.example.swapi.data.CharacterDb
+import com.example.swapi.data.*
 import com.example.swapi.databinding.SearchFragmentBinding
 import com.example.swapi.utilis.Status
 import com.example.swapi.viewmodel.FavoriteCharactersViewModel
 import com.example.swapi.viewmodel.SearchViewModel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.realm.Realm
 import io.realm.RealmConfiguration
+import io.realm.RealmMigration
+import kotlinx.coroutines.*
+import retrofit2.Retrofit
 
 class SearchFragment : Fragment() {
     companion object {
         fun newInstance() = SearchFragment()
     }
 
-    private val BASE_URL = "https://swapi.dev/api/"
+    private val BASE_URL = "https://swapi.dev/"
 
     private var urlId:Int = 1
 
@@ -72,6 +77,7 @@ class SearchFragment : Fragment() {
         provide(requireContext())
         clearDb()//ДЛЯ БД
         setupViewModel()
+        fetchFilmList()
         setupUI()
 
         page.observe(viewLifecycleOwner, Observer {
@@ -116,25 +122,14 @@ class SearchFragment : Fragment() {
 
                         resource.data?.let { characterDataList ->
                             retrieveList(checkFavoriteCharacterListInResponseFromServer(characterDataList,page)) }
-                        //СОХРАНЕНИЕ В БД
-
-                            if(!viewModel.checkDatabase(page,resource.data!!.size))
-                            viewModel.saveData(resource.data!!, page)
+                        val result = Realm.getDefaultInstance().where(CharacterDb::class.java).findAll()
+                        val a = 1+1
                     }
                     Status.ERROR -> {
-                        if(viewModel.checkDatabase(page)) {//incorrect db thread
-                            retrieveList(viewModel.fetchDataFromDB(page)!!.map { characterDb ->
-                                characterDb.map()
-                            })
-                            recyclerView!!.visibility = View.VISIBLE
-                            progressBar!!.visibility = View.GONE
-                        }
-                        else {
                             this.page.value = previousPage
                             recyclerView!!.visibility = View.VISIBLE
                             progressBar!!.visibility = View.GONE
                             Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
-                        }
                     }
                     Status.LOADING -> {
                         progressBar!!.visibility = View.VISIBLE
@@ -170,12 +165,40 @@ class SearchFragment : Fragment() {
 
     private fun provide(context: Context){
         Realm.init(context)
-        val config = RealmConfiguration.Builder()
+        Realm.setDefaultConfiguration(RealmConfiguration.Builder()
             .name("characterdb.realm")
             //.encryptionKey(getKey())
+            .schemaVersion(3L)
+            .migration(FilmRealmMigration())
             .allowWritesOnUiThread(true)
-            .build()
-        Realm.setDefaultConfiguration(config)
+            .build())
+        //Realm.setDefaultConfiguration(config)
+    }
+
+    private fun fetchFilmList(){
+        CoroutineScope(Job() + Dispatchers.IO).launch {
+            //TODO если списка фильмов нет то добавлять его в бд
+            val retrofit = Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .build()
+            val typeCharacter = object : TypeToken<FilmCloudList>() {}.type
+            val service = retrofit.create(CharacterService::class.java)
+            val filmList: FilmCloudList =
+                Gson().fromJson(service.fetchFilmList().string(), typeCharacter)
+
+
+            val realm = Realm.getDefaultInstance()
+            realm.executeTransactionAsync { r: Realm ->
+                for (i in filmList.results!!.indices) {
+                    val filmDb =
+                        r.createObject(FilmDb::class.java,i)
+                    //characterDb.id = characterDataList[0].id
+                    filmDb.title = filmList.results[i].title
+                    filmDb.opening_crawl = filmList.results[i].opening_crawl
+                    r.insertOrUpdate(filmDb)
+                }
+            }
+        }
     }
 
     private fun clearDb(){

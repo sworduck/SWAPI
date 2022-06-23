@@ -1,25 +1,23 @@
 package com.example.swapi.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.example.swapi.data.CharacterData
 import com.example.swapi.data.CharacterDb
-import com.example.swapi.repository.MainRepository
+import com.example.swapi.data.SearchRepository
+import com.example.swapi.repository.CharacterListFromCloud
 import com.example.swapi.utilis.Resource
 import io.realm.Realm
 import kotlinx.coroutines.Dispatchers
 
 
-class SearchViewModel(private val mainRepository: MainRepository) : ViewModel() {
+class SearchViewModel(private val mainRepository: CharacterListFromCloud) : ViewModel() {
 
         fun getCharacterList(page: Int) = liveData(Dispatchers.IO) {
                 emit(Resource.loading(data = null))
                 try {
-                        var result = mainRepository.getCharacterList(page).results
-                        emit(Resource.success(data = result!!.mapIndexed {
-                                        index, characterCloud -> characterCloud.map(index+(page-1)*10)
-                        }))
+                        //var result = mainRepository.getCharacterList(page).results
+                        emit(Resource.success(data = SearchRepository(mainRepository).fetchCharacterList(page)))
                 } catch (exception: Exception) {
                         emit( Resource.error( data = null, message = exception.message?: "Error Occurred!" ))
                 }

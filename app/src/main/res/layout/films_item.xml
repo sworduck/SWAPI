@@ -10,7 +10,8 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="17dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:text="TextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

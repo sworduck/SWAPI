@@ -67,7 +67,8 @@ class CharacterDescriptionActivity : AppCompatActivity() {
             adapter.addFilmList(filmsCloud!!.map { filmCloud -> filmCloud.title })
             adapter.notifyDataSetChanged()
             //java.lang.ClassCastException: com.example.swapi.data.FilmCloud cannot be cast to java.util.List
-            text.text ="${character!!.name} ${character!!.mass} ${character!!.height} ${filmsCloud!![0].title}"
+            text.text ="Name: ${character!!.name} \nMass: ${character!!.mass}" +
+                    "\nHeight: ${character!!.height}"
         }
 
 
