@@ -2,17 +2,27 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/title2"
         android:layout_width="wrap_content"
-        android:layout_height="17dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:text="TextView"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="A New Hope"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/opening_crawl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="@string/film_description"
+        app:layout_constraintStart_toStartOf="@id/title2"
+        app:layout_constraintTop_toTopOf="@id/title2" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

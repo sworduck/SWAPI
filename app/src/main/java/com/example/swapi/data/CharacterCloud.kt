@@ -38,5 +38,6 @@ data class CharacterCloud(
 
 
 ){
-    fun map(id:Int) = CharacterData(id,name,height,mass,homeworld)
+    fun map(id:Int) = CharacterData(id,name,height,mass,
+        films!!.joinToString(),homeworld)
 }

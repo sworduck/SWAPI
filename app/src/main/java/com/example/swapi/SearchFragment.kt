@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -28,7 +27,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.realm.Realm
 import io.realm.RealmConfiguration
-import io.realm.RealmMigration
 import kotlinx.coroutines.*
 import retrofit2.Retrofit
 
@@ -76,6 +74,7 @@ class SearchFragment : Fragment() {
         //page.value = 1
         provide(requireContext())
         clearDb()//ДЛЯ БД
+        //updateMigratedCharacterList()
         setupViewModel()
         fetchFilmList()
         setupUI()
@@ -122,14 +121,14 @@ class SearchFragment : Fragment() {
 
                         resource.data?.let { characterDataList ->
                             retrieveList(checkFavoriteCharacterListInResponseFromServer(characterDataList,page)) }
-                        val result = Realm.getDefaultInstance().where(CharacterDb::class.java).findAll()
-                        val a = 1+1
                     }
                     Status.ERROR -> {
+                            //if(it.message!="Unable to resolve host \"swapi.dev\": No address associated with hostname")
                             this.page.value = previousPage
                             recyclerView!!.visibility = View.VISIBLE
                             progressBar!!.visibility = View.GONE
-                            Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
+                            //Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
+                            Log.i("TAG","СООБЩЕНИЕ ОБ ОШИБКЕ: ${it.message.toString()}")
                     }
                     Status.LOADING -> {
                         progressBar!!.visibility = View.VISIBLE
@@ -168,37 +167,72 @@ class SearchFragment : Fragment() {
         Realm.setDefaultConfiguration(RealmConfiguration.Builder()
             .name("characterdb.realm")
             //.encryptionKey(getKey())
-            .schemaVersion(3L)
-            .migration(FilmRealmMigration())
+            .schemaVersion(5L)
+            //.deleteRealmIfMigrationNeeded()
+            //.migration(FilmRealmMigration())
             .allowWritesOnUiThread(true)
             .build())
         //Realm.setDefaultConfiguration(config)
     }
 
     private fun fetchFilmList(){
-        CoroutineScope(Job() + Dispatchers.IO).launch {
-            //TODO если списка фильмов нет то добавлять его в бд
-            val retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .build()
-            val typeCharacter = object : TypeToken<FilmCloudList>() {}.type
-            val service = retrofit.create(CharacterService::class.java)
-            val filmList: FilmCloudList =
-                Gson().fromJson(service.fetchFilmList().string(), typeCharacter)
-
-
-            val realm = Realm.getDefaultInstance()
+        val realm = Realm.getDefaultInstance()
+        var filmList: MutableLiveData<FilmCloudList> = MutableLiveData()
+        filmList?.observe(viewLifecycleOwner, Observer {
             realm.executeTransactionAsync { r: Realm ->
-                for (i in filmList.results!!.indices) {
+                for (i in filmList.value!!.results!!.indices) {
                     val filmDb =
-                        r.createObject(FilmDb::class.java,i)
+                        r.createObject(FilmDb::class.java, i)
                     //characterDb.id = characterDataList[0].id
-                    filmDb.title = filmList.results[i].title
-                    filmDb.opening_crawl = filmList.results[i].opening_crawl
+                    filmDb.title = filmList.value!!.results!![i].title
+                    filmDb.opening_crawl = filmList.value!!.results!![i].opening_crawl
                     r.insertOrUpdate(filmDb)
                 }
             }
+        })
+        var filmDbList = realm.where(FilmDb::class.java).findAll()//.deleteAllFromRealm()
+        //filmDbList = realm.where(FilmDb::class.java).findAll()
+        if (filmDbList.isEmpty()) {
+            CoroutineScope(Job() + Dispatchers.Main).launch {
+                    //Main Thread здесь плохо
+                    val retrofit = Retrofit.Builder()
+                        .baseUrl(BASE_URL)
+                        .build()
+                    val typeCharacter = object : TypeToken<FilmCloudList>() {}.type
+                    val service = retrofit.create(CharacterService::class.java)
+                    filmList.value =
+                        Gson().fromJson(service.fetchFilmList().string(), typeCharacter)
+                    //ошибка потока
+            }
         }
+
+    }
+    //при миграции у любимых персонажей отсутствовал idList, добавление этого списка
+    private fun updateMigratedCharacterList(){
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .build()
+        val typeCharacter = object : TypeToken<CharacterCloud>() {}.type
+        val service = retrofit.create(CharacterService::class.java)
+        var realm = Realm.getDefaultInstance()
+        var characterDbList:MutableList<CharacterDb> = mutableListOf()
+        var characterCloud:CharacterCloud? = null
+        var characterDb:CharacterDb? = null
+        realm.executeTransaction { r:Realm->
+            characterDbList = realm.where(CharacterDb::class.java).equalTo("type","favorite").findAll()
+        }
+        CoroutineScope(Dispatchers.Main).launch {
+            for (i in characterDbList.indices) {
+                characterCloud = Gson().fromJson(service.fetchCharacter(characterDbList[i].id+1).string(), typeCharacter)
+                realm.executeTransaction { r: Realm ->
+                    characterDb = r.where(CharacterDb::class.java).equalTo("id", characterDbList[i].id)
+                        .findFirst()
+                    characterDb!!.idList = characterCloud!!.films!!.joinToString()
+                }
+            }
+        }
+
+
     }
 
     private fun clearDb(){

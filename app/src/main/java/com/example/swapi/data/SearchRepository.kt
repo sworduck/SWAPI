@@ -6,15 +6,16 @@ import io.realm.Realm
 class SearchRepository(private val characterListFromCloud: CharacterListFromCloud) {
     suspend fun fetchCharacterList(page:Int):List<CharacterData>
     {
-        return if (checkDataFromDB(page)!!.isEmpty()) {
+        var characterList = checkDataFromDB(page)
+        if (characterList!!.isEmpty()) {
             var resultFromCloud = characterListFromCloud.getCharacterList(page).results
             saveData(
                 resultFromCloud!!.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) },
                 page
             )
-            resultFromCloud!!.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) }
+            return resultFromCloud!!.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) }
         } else {
-            fetchDataFromDB(page)!!.map { characterDb -> characterDb.map() }
+            return fetchDataFromDB(page)!!.map { characterDb -> characterDb.map() }
         }
     }
     private fun fetchAllDb():List<CharacterDb>?{
@@ -22,11 +23,13 @@ class SearchRepository(private val characterListFromCloud: CharacterListFromClou
         return realm.where(CharacterDb::class.java).findAll()
     }
 
+
     private fun checkDataFromDB(page: Int): List<CharacterDb>? {
         val realm = Realm.getDefaultInstance()
-        return realm.where(CharacterDb::class.java).between(
+        val result = realm.where(CharacterDb::class.java).between(
             "id", 0+(page-1)*10, 9+(page-1)*10
         ).equalTo("type","default").findAll()
+        return result
 
     }
 
@@ -38,7 +41,8 @@ class SearchRepository(private val characterListFromCloud: CharacterListFromClou
     }
     private fun saveData(characterDataList: List<CharacterData>, page:Int) {
         val realm = Realm.getDefaultInstance()
-        realm.executeTransactionAsync { r: Realm ->
+        //если Async то не успевает отработать до проверки characterList!!.isEmpty()
+        realm.executeTransaction { r: Realm ->
             val list = r.where(CharacterDb::class.java)
                 .between("id",characterDataList[0].id
                     ,characterDataList[characterDataList.size-1].id)
@@ -58,7 +62,7 @@ class SearchRepository(private val characterListFromCloud: CharacterListFromClou
                     characterDb.mass = characterDataList[i].mass
                     characterDb.homeworld = characterDataList[i].homeworld
                     characterDb.type = characterDataList[i].type
-                    //Доступ к объектам Realm возможен только в том потоке, в котором они были созданы.
+                    characterDb.idList = characterDataList[i].filmIdList
                     r.insertOrUpdate(characterDb)
                 }
             }
@@ -76,13 +80,11 @@ class SearchRepository(private val characterListFromCloud: CharacterListFromClou
                         characterDb.homeworld =
                             characterDataList[i].homeworld
                         characterDb.type = characterDataList[i].type
-                        //Доступ к объектам Realm возможен только в том потоке, в котором они были созданы.
+                        characterDb.idList = characterDataList[i].filmIdList
                         r.insertOrUpdate(characterDb)
                     }
                 }
             }
-
-
         }
     }
 
