@@ -8,9 +8,12 @@ import com.example.swapi.repository.CharacterListFromCloud
 
 class SearchViewModelFactory(private val apiHelper: ApiHelper) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        /*
         if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
             return SearchViewModel(CharacterListFromCloud.Base(apiHelper)) as T
         }
+
+         */
         throw IllegalArgumentException("Unknown class name")
     }
 }

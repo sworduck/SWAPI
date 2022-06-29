@@ -1,4 +1,4 @@
-package com.example.swapi
+package com.example.swapi.adapter
 
 import android.app.Activity
 import android.content.Intent
@@ -6,9 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat.startActivity
-import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
+import com.example.swapi.R
 import java.util.*
 
 class RecyclerSearchFragmentAdapter(private val listCharactersName:List<String>):RecyclerView.Adapter<RecyclerSearchFragmentAdapter.SearchViewHolder>() {
@@ -28,10 +27,13 @@ class RecyclerSearchFragmentAdapter(private val listCharactersName:List<String>)
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         holder.textView.text = listCharactersName[position]
         holder.textView.setOnClickListener {
+            /*
             val activity = holder.itemView.context as Activity
             val intent = Intent(activity,CharacterDescriptionActivity::class.java)
             intent.putExtra("id",position+page*10)
             activity.startActivity(intent)
+
+             */
         }
     }
 

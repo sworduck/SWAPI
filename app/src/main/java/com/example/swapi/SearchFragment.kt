@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.*
+import androidx.navigation.findNavController
+import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,7 +41,9 @@ class SearchFragment : Fragment() {
 
     private var urlId:Int = 1
 
-    private lateinit var viewModel: SearchViewModel
+    private lateinit var bigViewModel: SearchViewModel
+
+    private val viewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
 
     private lateinit var viewModelFavorite: FavoriteCharactersViewModel
 
@@ -51,17 +55,32 @@ class SearchFragment : Fragment() {
     private var recyclerView:RecyclerView? = null
     private var progressBar:ProgressBar? = null
 
-    private var page: MutableLiveData<Int> = MutableLiveData(1)
+    //private var page: MutableLiveData<Int> = MutableLiveData(1)
     private var previousPage = 0
 
+    private var flagClearDbLiveData:MutableLiveData<Boolean> = MutableLiveData(true)
 
+    private var flagClearDb:Boolean = true
+
+    private val onClickListener:SearchFragmentAdapter.OnClickListener = object:SearchFragmentAdapter.OnClickListener{
+        override fun onClickName(position: Int) {
+            view!!.findNavController().
+            navigate(SearchFragmentDirections.actionSearchFragmentToCharacterDescriptionFragment2(position,"search"))
+        }
+
+        override fun onClickFavorite(): Boolean {
+            return false
+        }
+
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.i("TAG","onCreateView")
         binding = DataBindingUtil.inflate(inflater,R.layout.search_fragment,container,false)
-
 
 
         recyclerView = binding.charactersRecyclerView
@@ -71,32 +90,38 @@ class SearchFragment : Fragment() {
                                             //или requireActivity()
         viewModelFavorite = ViewModelProvider(requireActivity())[FavoriteCharactersViewModel::class.java]
 
+
         //page.value = 1
-        provide(requireContext())
-        clearDb()//ДЛЯ БД
+        //provide(requireContext())
+        //clearDb()//ДЛЯ БД
         //updateMigratedCharacterList()
         setupViewModel()
         fetchFilmList()
         setupUI()
-
-        page.observe(viewLifecycleOwner, Observer {
+        val list =Realm.getDefaultInstance().where(CharacterDb::class.java).findAll()
+        val a = list.toString()
+        val b = 1+1
+        if(viewModel.page.value == null){
+            viewModel.page.value = 1
+        }
+        viewModel.page.observe(viewLifecycleOwner, Observer {
             setupObservers(it)
         })
 
         binding.next.setOnClickListener {
-            previousPage = page.value!!
-            page.value = (page.value)?.plus(1)
+            previousPage = viewModel.page.value!!
+            viewModel.page.value = (viewModel.page.value)?.plus(1)
         }
 
         binding.previous.setOnClickListener {
-            previousPage = page.value!!
-            page.value = (page.value)?.minus(1)
+            previousPage = viewModel.page.value!!
+            viewModel.page.value = (viewModel.page.value)?.minus(1)
         }
         return binding.root
     }
+
     private fun setupViewModel() {
-        viewModel = ViewModelProvider(this,SearchViewModelFactory(ApiHelper(RetrofitBuilder.apiService)))
-            .get(SearchViewModel::class.java)
+        //viewModel = ViewModelProvider(this,SearchViewModelFactory(ApiHelper(RetrofitBuilder.apiService))).get(SearchViewModel::class.java)
     }
 
     private fun setupUI() {
@@ -108,6 +133,7 @@ class SearchFragment : Fragment() {
                 (recyclerView!!.layoutManager as LinearLayoutManager).orientation
             )
         )
+        adapter!!.setOnClickListener(onClickListener)
         recyclerView!!.adapter = adapter
     }
 
@@ -124,7 +150,7 @@ class SearchFragment : Fragment() {
                     }
                     Status.ERROR -> {
                             //if(it.message!="Unable to resolve host \"swapi.dev\": No address associated with hostname")
-                            this.page.value = previousPage
+                            this.viewModel.page.value = previousPage
                             recyclerView!!.visibility = View.VISIBLE
                             progressBar!!.visibility = View.GONE
                             //Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
@@ -150,6 +176,9 @@ class SearchFragment : Fragment() {
         for(i in characterList.indices){
             if(characterList[i].id in list){
                 characterList[i].type = "favorite"
+            }
+            else{
+                characterList[i].type = "default"
             }
         }
         return characterList
@@ -194,7 +223,6 @@ class SearchFragment : Fragment() {
         //filmDbList = realm.where(FilmDb::class.java).findAll()
         if (filmDbList.isEmpty()) {
             CoroutineScope(Job() + Dispatchers.Main).launch {
-                    //Main Thread здесь плохо
                     val retrofit = Retrofit.Builder()
                         .baseUrl(BASE_URL)
                         .build()
@@ -202,12 +230,11 @@ class SearchFragment : Fragment() {
                     val service = retrofit.create(CharacterService::class.java)
                     filmList.value =
                         Gson().fromJson(service.fetchFilmList().string(), typeCharacter)
-                    //ошибка потока
+
             }
         }
 
     }
-    //при миграции у любимых персонажей отсутствовал idList, добавление этого списка
     private fun updateMigratedCharacterList(){
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -236,9 +263,13 @@ class SearchFragment : Fragment() {
     }
 
     private fun clearDb(){
-        var realm = Realm.getDefaultInstance()
-        realm.executeTransactionAsync { r: Realm ->
-            r.where(CharacterDb::class.java).equalTo("type","default").findAll().deleteAllFromRealm()
+        if(flagClearDb) {
+            var realm = Realm.getDefaultInstance()
+            realm.executeTransactionAsync { r: Realm ->
+                r.where(CharacterDb::class.java).equalTo("type", "default").findAll()
+                    .deleteAllFromRealm()
+            }
+            flagClearDb = false
         }
     }
 
