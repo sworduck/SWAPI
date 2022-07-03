@@ -23,7 +23,6 @@ class SearchFragmentAdapter(
 
     interface OnClickListener {
         fun onClickName(position: Int)
-        //TODO fix it
         fun onClickFavorite():Boolean
     }
 
@@ -63,7 +62,6 @@ class SearchFragmentAdapter(
                 //переключение персонажа с default на favorite
                 holder.itemView.findViewById<ImageButton>(R.id.favorite)
                     .setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
-                //characterData.type = "favorite"
                 realm.executeTransaction { r ->
                     val characterDb =
                         r.where(CharacterDb::class.java).equalTo("id", characterList[position].id)
@@ -91,7 +89,7 @@ class SearchFragmentAdapter(
             }
         }
             holder.itemView.findViewById<Button>(R.id.name).setOnClickListener {
-                this.onClickListener!!.onClickName(position)
+                this.onClickListener!!.onClickName(characterList[position].id)
             }
     }
 

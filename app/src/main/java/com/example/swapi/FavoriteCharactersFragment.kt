@@ -15,20 +15,18 @@ import com.example.swapi.adapter.SearchFragmentAdapter
 import com.example.swapi.data.CharacterData
 import com.example.swapi.data.CharacterDb
 import com.example.swapi.databinding.FavoriteCharactersFragmentBinding
-import com.example.swapi.viewmodel.FavoriteCharactersViewModel
 import com.example.swapi.viewmodel.SearchViewModel
 import io.realm.Realm
 
 class FavoriteCharactersFragment : Fragment() {
 
 
-    private lateinit var viewModel: FavoriteCharactersViewModel
 
     private lateinit var binding: FavoriteCharactersFragmentBinding
 
     private lateinit var adapter:SearchFragmentAdapter
 
-    private val bigViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
+    private val mainViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
 
     var listCharacter: MutableLiveData<List<CharacterDb>> = MutableLiveData()
 
@@ -52,7 +50,6 @@ class FavoriteCharactersFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater,R.layout.favorite_characters_fragment,container,false)
 
-        viewModel = ViewModelProvider(requireActivity())[FavoriteCharactersViewModel::class.java]
 
         var recyclerView = binding.favoriteRecyclerView
 

@@ -1,11 +1,12 @@
 package com.example.swapi.data
 
-import com.example.swapi.repository.CharacterListFromCloud
 import io.realm.Realm
 
 class SearchRepository(private val characterListFromCloud: CharacterListFromCloud) {
+    var count = 9
     suspend fun fetchCharacterList(page:Int):List<CharacterData>
     {
+        count = if (page ==9) 1 else 9
         var characterList = checkDataFromDB(page)
         if (characterList!!.isEmpty()) {
             var resultFromCloud = characterListFromCloud.getCharacterList(page).results
@@ -18,16 +19,11 @@ class SearchRepository(private val characterListFromCloud: CharacterListFromClou
             return fetchDataFromDB(page)!!.map { characterDb -> characterDb.map() }
         }
     }
-    private fun fetchAllDb():List<CharacterDb>?{
-        val realm = Realm.getDefaultInstance()
-        return realm.where(CharacterDb::class.java).findAll()
-    }
-
 
     private fun checkDataFromDB(page: Int): List<CharacterDb>? {
         val realm = Realm.getDefaultInstance()
         val result = realm.where(CharacterDb::class.java).between(
-            "id", 0+(page-1)*10, 9+(page-1)*10
+            "id", 0+(page-1)*10, count+(page-1)*10
         ).equalTo("type","default").findAll()
         return result
 
@@ -36,12 +32,11 @@ class SearchRepository(private val characterListFromCloud: CharacterListFromClou
     private fun fetchDataFromDB(page: Int): List<CharacterDb>? {
         val realm = Realm.getDefaultInstance()
         return realm.where(CharacterDb::class.java).between(
-            "id", 0 + (page - 1) * 10, 9 + (page - 1) * 10
+            "id", 0 + (page - 1) * 10, count + (page - 1) * 10
         ).findAll()
     }
     private fun saveData(characterDataList: List<CharacterData>, page:Int) {
         val realm = Realm.getDefaultInstance()
-        //если Async то не успевает отработать до проверки characterList!!.isEmpty()
         realm.executeTransaction { r: Realm ->
             val list = r.where(CharacterDb::class.java)
                 .between("id",characterDataList[0].id
@@ -50,7 +45,7 @@ class SearchRepository(private val characterListFromCloud: CharacterListFromClou
                     it.id
                 }
             if(list.isEmpty()){
-                for(i in 0..9) {
+                for(i in 0..count) {
                     val characterDb =
                         r.createObject(
                             CharacterDb::class.java,
@@ -67,7 +62,7 @@ class SearchRepository(private val characterListFromCloud: CharacterListFromClou
                 }
             }
             else{
-                for(i in 0..9) {
+                for(i in 0..count) {
                     if(i+(page - 1) * 10 !in list) {
                         val characterDb =
                             r.createObject(

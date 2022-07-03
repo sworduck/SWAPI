@@ -4,7 +4,6 @@ import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 
 open class CharacterDb(): RealmObject(){
-    //TODO изменить idList на filmIdList через миграцию
     constructor(_id:Int,_name:String,_height:String,_mass:String,_idList:String,_homeworld:String):this(){
         id = _id
         name = _name

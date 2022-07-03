@@ -1,39 +1,29 @@
 package com.example.swapi
 
-import android.content.Intent
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
-import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.adapter.DescriptionFilmAdapter
 import com.example.swapi.data.CharacterDb
 import com.example.swapi.data.FilmDb
 import com.example.swapi.databinding.CharacterDescriptionFragmentBinding
-import com.example.swapi.viewmodel.CharacterDescriptionViewModel
 import com.example.swapi.viewmodel.SearchViewModel
 import io.realm.Realm
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 
 class CharacterDescriptionFragment : Fragment() {
-
-
-
-    private lateinit var viewModel: CharacterDescriptionViewModel
     private lateinit var binding:CharacterDescriptionFragmentBinding
-    private val bigViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
+    private val mainViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
 
     private var textView:TextView?=null
 
@@ -42,8 +32,6 @@ class CharacterDescriptionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater,R.layout.character_description_fragment,container,false)
-        viewModel = ViewModelProvider(requireActivity())[CharacterDescriptionViewModel::class.java]
-
         val args = CharacterDescriptionFragmentArgs.fromBundle(requireArguments())
         textView = binding.textViewDescription
 
@@ -79,6 +67,27 @@ class CharacterDescriptionFragment : Fragment() {
             adapter.notifyDataSetChanged()
             binding.textViewDescription.text ="Name: ${character!!.name} \nMass: ${character!!.mass}" +
                     "\nHeight: ${character!!.height}"
+        }
+
+        binding.imageButton.setOnClickListener {
+            if (character.type == "default") {
+                //переключение персонажа с default на favorite
+                binding.imageButton
+                    .setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
+                realm.executeTransaction { r ->
+
+                    character.type = "favorite"
+                }
+
+            } else {
+                //переключение персонажа с favorite на default
+                binding.imageButton
+                    .setBackgroundResource(R.drawable.ic_baseline_star_border_24)
+                realm.executeTransaction { r ->
+
+                    character.type = "default"
+                }
+            }
         }
 
 

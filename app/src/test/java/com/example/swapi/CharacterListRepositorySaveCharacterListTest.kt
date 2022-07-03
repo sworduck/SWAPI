@@ -2,9 +2,8 @@ package com.example.swapi
 
 import com.example.swapi.data.CharacterCloud
 import com.example.swapi.data.CharacterCloudList
-import com.example.swapi.data.CharacterData
 import com.example.swapi.data.SearchRepository
-import com.example.swapi.repository.CharacterListFromCloud
+import com.example.swapi.data.CharacterListFromCloud
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -29,7 +28,7 @@ class CharacterListRepositorySaveCharacterListTest {
 
     }
 
-    class CharacterListFromCloudTest:CharacterListFromCloud {
+    class CharacterListFromCloudTest: CharacterListFromCloud {
         override suspend fun getCharacterList(page: Int): CharacterCloudList {
             return  CharacterCloudList(10,"next",null,
                 listOf(CharacterCloud("name1","height1","mass1","hair1","skin1",
