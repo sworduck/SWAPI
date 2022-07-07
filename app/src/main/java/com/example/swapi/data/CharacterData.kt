@@ -1,7 +1,7 @@
 package com.example.swapi.data
 
-class CharacterData(){
-    constructor(_id:Int,_name:String,_height:String,_mass:String,_filmIdList:String,_homeworld:String):this(){
+data class CharacterData(val _id:Int){
+    constructor(_id:Int,_name:String,_height:String,_mass:String,_filmIdList:String,_homeworld:String):this(_id){
         id = _id
         name = _name
         height = _height
@@ -9,7 +9,7 @@ class CharacterData(){
         homeworld = _homeworld
         filmIdList = _filmIdList
     }
-    constructor(_id:Int,_name:String,_height:String,_mass:String,_filmIdList:String,_homeworld:String,_type:String):this(){
+    constructor(_id:Int,_name:String,_height:String,_mass:String,_filmIdList:String,_homeworld:String,_type:String):this(_id){
         id = _id
         name = _name
         height = _height
@@ -25,4 +25,8 @@ class CharacterData(){
     var filmIdList = ""
     var homeworld = "0"
     var type = "default"// default and favorite
+
+    override fun toString():String{
+        return "$id $name $height $mass $filmIdList $homeworld $type"
+    }
 }

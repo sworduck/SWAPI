@@ -24,13 +24,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.adapter.SearchFragmentAdapter
 import com.example.swapi.api.CharacterService
 import com.example.swapi.data.*
+import com.example.swapi.data.cache.CharacterDb
+import com.example.swapi.data.cache.FilmDb
+import com.example.swapi.data.cloud.FilmCloudList
 import com.example.swapi.databinding.SearchFragmentBinding
 import com.example.swapi.utilis.Status
 import com.example.swapi.viewmodel.SearchViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.realm.Realm
-import io.realm.RealmConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -68,8 +70,20 @@ class SearchFragment : Fragment() {
             navigate(SearchFragmentDirections.actionSearchFragmentToCharacterDescriptionFragment2(position,"search"))
         }
 
-        override fun onClickFavorite(): Boolean {
+        override fun onClickFavoriteOnSearchOrFavoritePage(): Boolean {
             return false
+        }
+
+        override fun onClickFavoriteButton(type: String,id:Int) {
+            Realm.getDefaultInstance().executeTransaction { r ->
+                val characterDb =
+                    r.where(CharacterDb::class.java).equalTo("id", id)
+                        .findFirst()
+                if(type=="default")
+                    characterDb!!.type = "favorite"
+                else//type=="favorite"
+                    characterDb!!.type = "default"
+            }
         }
 
 

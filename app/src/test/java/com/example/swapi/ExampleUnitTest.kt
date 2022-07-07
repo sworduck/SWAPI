@@ -1,7 +1,6 @@
 package com.example.swapi
 
 import com.example.swapi.api.CharacterService
-import com.example.swapi.data.FilmCloudList
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope

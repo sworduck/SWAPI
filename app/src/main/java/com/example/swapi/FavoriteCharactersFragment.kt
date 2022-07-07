@@ -1,6 +1,5 @@
 package com.example.swapi
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,7 +12,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.navGraphViewModels
 import com.example.swapi.adapter.SearchFragmentAdapter
 import com.example.swapi.data.CharacterData
-import com.example.swapi.data.CharacterDb
+import com.example.swapi.data.cache.CharacterDb
 import com.example.swapi.databinding.FavoriteCharactersFragmentBinding
 import com.example.swapi.viewmodel.SearchViewModel
 import io.realm.Realm
@@ -37,8 +36,19 @@ class FavoriteCharactersFragment : Fragment() {
                 .actionFavoriteCharactersFragmentToCharacterDescriptionFragment(position,"favorite"))
         }
 
-        override fun onClickFavorite(): Boolean {
+        override fun onClickFavoriteOnSearchOrFavoritePage(): Boolean {
             return true
+        }
+        override fun onClickFavoriteButton(type: String,id:Int) {
+            Realm.getDefaultInstance().executeTransaction { r ->
+                val characterDb =
+                    r.where(CharacterDb::class.java).equalTo("id", id)
+                        .findFirst()
+                if(type=="default")
+                    characterDb!!.type = "favorite"
+                else//type=="favorite"
+                    characterDb!!.type = "default"
+            }
         }
 
 

@@ -1,6 +1,5 @@
 package com.example.swapi
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,8 +10,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.navigation.navGraphViewModels
 import com.example.swapi.adapter.DescriptionFilmAdapter
-import com.example.swapi.data.CharacterDb
-import com.example.swapi.data.FilmDb
+import com.example.swapi.data.cache.CharacterDb
+import com.example.swapi.data.cache.FilmDb
 import com.example.swapi.databinding.CharacterDescriptionFragmentBinding
 import com.example.swapi.viewmodel.SearchViewModel
 import io.realm.Realm

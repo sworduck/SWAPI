@@ -1,5 +1,6 @@
-package com.example.swapi.data
+package com.example.swapi.data.cloud
 
+import com.example.swapi.data.CharacterData
 import com.google.gson.annotations.SerializedName
 
 data class CharacterCloud(

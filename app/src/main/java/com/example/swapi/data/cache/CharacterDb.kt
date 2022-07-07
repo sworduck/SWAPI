@@ -1,5 +1,6 @@
-package com.example.swapi.data
+package com.example.swapi.data.cache
 
+import com.example.swapi.data.CharacterData
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 

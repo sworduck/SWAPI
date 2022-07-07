@@ -1,6 +1,6 @@
 package com.example.swapi.api
 
-import com.example.swapi.data.CharacterCloudList
+import com.example.swapi.data.cloud.CharacterCloudList
 import kotlinx.coroutines.Deferred
 import okhttp3.ResponseBody
 import org.json.JSONArray

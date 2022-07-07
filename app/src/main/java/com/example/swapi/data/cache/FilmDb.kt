@@ -1,4 +1,4 @@
-package com.example.swapi.data
+package com.example.swapi.data.cache
 
 import io.realm.RealmObject
 import io.realm.annotations.Ignore

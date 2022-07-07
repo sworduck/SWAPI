@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.R
-import com.example.swapi.data.FilmDb
+import com.example.swapi.data.cache.FilmDb
 
 class DescriptionFilmAdapter(private val filmList:ArrayList<FilmDb>):RecyclerView.Adapter<DescriptionFilmAdapter.FilmViewHolder>() {
 

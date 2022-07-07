@@ -8,7 +8,7 @@ import android.widget.ImageButton
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.*
 import com.example.swapi.data.CharacterData
-import com.example.swapi.data.CharacterDb
+import com.example.swapi.data.cache.CharacterDb
 import io.realm.Realm
 import kotlin.collections.ArrayList
 
@@ -23,7 +23,8 @@ class SearchFragmentAdapter(
 
     interface OnClickListener {
         fun onClickName(position: Int)
-        fun onClickFavorite():Boolean
+        fun onClickFavoriteOnSearchOrFavoritePage():Boolean
+        fun onClickFavoriteButton(type:String,id:Int)
     }
 
     private fun removeItem(position: Int){
@@ -58,28 +59,17 @@ class SearchFragmentAdapter(
         holder.bind(characterList[position])//,viewModel)
         holder.itemView.findViewById<ImageButton>(R.id.favorite).setOnClickListener {
             val realm = Realm.getDefaultInstance()
+            onClickListener!!.onClickFavoriteButton(characterList[position].type,characterList[position].id)
             if (characterList[position].type == "default") {
                 //переключение персонажа с default на favorite
                 holder.itemView.findViewById<ImageButton>(R.id.favorite)
                     .setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
-                realm.executeTransaction { r ->
-                    val characterDb =
-                        r.where(CharacterDb::class.java).equalTo("id", characterList[position].id)
-                            .findFirst()
-                    characterDb!!.type = "favorite"
-                }
                 characterList[position].type = "favorite"
             } else {
                 //переключение персонажа с favorite на default
                 holder.itemView.findViewById<ImageButton>(R.id.favorite)
                     .setBackgroundResource(R.drawable.ic_baseline_star_border_24)
-                realm.executeTransaction { r ->
-                    val characterDb =
-                        r.where(CharacterDb::class.java).equalTo("id", characterList[position].id)
-                            .findFirst()
-                    characterDb!!.type = "default"
-                }
-                if(onClickListener!!.onClickFavorite()){
+                if(onClickListener!!.onClickFavoriteOnSearchOrFavoritePage()){
                     removeItem(position)
                 }
                 else{

@@ -4,6 +4,9 @@ plugins {
     id 'kotlin-kapt'
     id 'realm-android'
     id 'androidx.navigation.safeargs'
+    // Apply the Crashlytics Gradle plugin
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -57,6 +60,24 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:2.4.2"
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0'
     testImplementation 'junit:junit:4.13.2'
+
+    // Optional -- Robolectric environment
+    testImplementation "androidx.test:core-ktx:1.4.0"
+    // Optional -- Mockito framework
+    testImplementation "org.mockito:mockito-core:4.3.1"
+    // Optional -- mockito-kotlin
+    testImplementation "org.mockito.kotlin:mockito-kotlin:2.2.10"
+    // Optional -- Mockk framework
+    testImplementation "io.mockk:mockk:1.4.1"
+
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:30.2.0')
+
+    // Declare the dependencies for the Crashlytics and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 }

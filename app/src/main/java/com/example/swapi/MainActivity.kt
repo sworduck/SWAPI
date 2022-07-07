@@ -6,9 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.example.swapi.api.CharacterService
-import com.example.swapi.data.CharacterCloud
-import com.example.swapi.data.CharacterDb
+import com.example.swapi.data.cache.CharacterDb
+import com.example.swapi.data.cloud.CharacterCloud
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.realm.Realm
@@ -19,7 +20,8 @@ import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(),RealmProvider {
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val BASE_URL = "https://swapi.dev/"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,10 +34,35 @@ class MainActivity : AppCompatActivity() {
         val navController = this.findNavController(R.id.nav_host_fragment)
         val bottomNav:BottomNavigationView = findViewById(R.id.bottomNavigation)
         NavigationUI.setupWithNavController(bottomNav, navController)
+        /*
+        val crashButton = Button(this)
+        crashButton.text = "Test Crash"
+        crashButton.setOnClickListener {
+            throw RuntimeException("Test Crash") // Force a crash
+        }
+
+        addContentView(crashButton, ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT))
+
+         */
+        // Obtain the FirebaseAnalytics instance.
+        /*
+        firebaseAnalytics = Firebase.analytics
+
+
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+            param(FirebaseAnalytics.Param.ITEM_ID, id)
+            param(FirebaseAnalytics.Param.ITEM_NAME, name)
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "image")
+        }
+
+         */
+
 
 
     }
-    private fun provide(context: Context){
+    override fun provide(context: Context){
         Realm.init(context)
         Realm.setDefaultConfiguration(
             RealmConfiguration.Builder()
@@ -64,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         var realm = Realm.getDefaultInstance()
         var characterDbList:MutableList<CharacterDb> = mutableListOf()
         var characterCloud: CharacterCloud? = null
-        var characterDb:CharacterDb? = null
+        var characterDb: CharacterDb? = null
         realm.executeTransaction { r:Realm->
             characterDbList = realm.where(CharacterDb::class.java).equalTo("type","favorite").findAll()
         }

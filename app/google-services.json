@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "136125724191",
+    "project_id": "swapi-6e4e3",
+    "storage_bucket": "swapi-6e4e3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:136125724191:android:c3d7086c3dd6ab04abc72a",
+        "android_client_info": {
+          "package_name": "com.example.swapi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "136125724191-bjm9s4157lk7p7p7r4fipo8mou3jq7km.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATGIO3U2hVPwfhrkcI94MTUwQrjBSF21E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "136125724191-bjm9s4157lk7p7p7r4fipo8mou3jq7km.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
