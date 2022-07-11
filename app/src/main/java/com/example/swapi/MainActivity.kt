@@ -2,11 +2,16 @@ package com.example.swapi
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.example.swapi.api.CharacterService
+import com.example.swapi.data.CharacterData
+import com.example.swapi.data.cache.CharacterDataBaseDao
+import com.example.swapi.data.cache.CharacterDataBaseEntity
 import com.example.swapi.data.cache.CharacterDb
+import com.example.swapi.data.cache.CharacterRoomDataBase
 import com.example.swapi.data.cloud.CharacterCloud
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -16,6 +21,7 @@ import io.realm.Realm
 import io.realm.RealmConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 
@@ -23,10 +29,13 @@ import retrofit2.Retrofit
 class MainActivity : AppCompatActivity(),RealmProvider {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val BASE_URL = "https://swapi.dev/"
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        provide(this)
-        clearDb()
+        //provide(this)
+        //clearDb()
         //updateMigratedCharacterList()
         setContentView(R.layout.activity_main)
 
@@ -34,6 +43,33 @@ class MainActivity : AppCompatActivity(),RealmProvider {
         val navController = this.findNavController(R.id.nav_host_fragment)
         val bottomNav:BottomNavigationView = findViewById(R.id.bottomNavigation)
         NavigationUI.setupWithNavController(bottomNav, navController)
+
+        val db  = CharacterRoomDataBase.getDataBase(this)
+        val characterDataBaseDao: CharacterDataBaseDao = db.characterDataBaseDao()
+        val characterDataBaseEntity:CharacterDataBaseEntity = CharacterDataBaseEntity(
+            100,"1","1","1","1","default","1")
+
+        CoroutineScope(Job()+Dispatchers.IO).launch {
+            //characterDataBaseDao.insert(characterDataBaseEntity)
+            /*
+            val list:List<CharacterDataBaseEntity> = characterDataBaseDao.getCharacterList(1)
+            Log.i("TAG","${list.size}")
+            Log.i("TAG","${list[0].type}")
+            val characterDataBaseEntityTwo: CharacterDataBaseEntity = characterDataBaseDao.getCharacter(100)
+            Log.i("TAG","${characterDataBaseEntityTwo.type}")
+            //characterDataBaseDao.delete(100)
+
+             */
+            //characterDataBaseDao.deleteAll()
+            /*
+            val characterDataBaseEntityThree:CharacterDataBaseEntity = characterDataBaseDao.getCharacter(100)
+            Log.i("TAG","$characterDataBaseEntityTwo")
+            Log.i("TAG", "успешное выполнение запросов бд")
+
+             */
+        }
+
+
         /*
         val crashButton = Button(this)
         crashButton.text = "Test Crash"

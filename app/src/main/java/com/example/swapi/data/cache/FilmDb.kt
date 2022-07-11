@@ -14,7 +14,7 @@ open class FilmDb():RealmObject() {
     @PrimaryKey
     var id:Int = 0
     @Required
-    var title:String? = ""
+    var title:String = ""
     @Required
-    var opening_crawl:String? = ""
+    var opening_crawl:String = ""
 }

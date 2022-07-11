@@ -11,6 +11,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.navGraphViewModels
 import com.example.swapi.adapter.DescriptionFilmAdapter
 import com.example.swapi.data.cache.CharacterDb
+import com.example.swapi.data.cache.CharacterRoomDataBase
+import com.example.swapi.data.cache.FilmDataBaseEntity
 import com.example.swapi.data.cache.FilmDb
 import com.example.swapi.databinding.CharacterDescriptionFragmentBinding
 import com.example.swapi.viewmodel.SearchViewModel
@@ -22,9 +24,9 @@ import kotlinx.coroutines.launch
 
 class CharacterDescriptionFragment : Fragment() {
     private lateinit var binding:CharacterDescriptionFragmentBinding
-    private val mainViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
+    //private val mainViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
 
-    private var textView:TextView?=null
+    //private var textView:TextView?=null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,43 +34,70 @@ class CharacterDescriptionFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater,R.layout.character_description_fragment,container,false)
         val args = CharacterDescriptionFragmentArgs.fromBundle(requireArguments())
-        textView = binding.textViewDescription
-
-        textView!!.text = "alo"
-
-        val scope = CoroutineScope(Job() + Dispatchers.Main)
-        val realm = Realm.getDefaultInstance()
-        binding.textViewDescription.text = "номер чего-то: ${args.position}"
+        val textView = binding.textViewDescription
 
 
-        var filmsDb: MutableList<FilmDb>? = mutableListOf()
+
+        val scope = CoroutineScope(Job() + Dispatchers.IO)
+        //val realm = Realm.getDefaultInstance()
+
+
+        var filmsDb: MutableList<FilmDataBaseEntity> = mutableListOf()
         var filmsId:List<Int>? = null
-        var adapter = DescriptionFilmAdapter(arrayListOf(FilmDb()))
+        var adapter = DescriptionFilmAdapter(arrayListOf())
         binding.descriptionRecycler.adapter = adapter
-        var character: CharacterDb? =
-            realm.where(CharacterDb::class.java).equalTo("id",args.position).findFirst()
-        var list:List<Int> = character!!.idList!!.split(",").map {
-            it.replace("/","").substringAfterLast("films").toInt()
-        }
+        val characterDao = CharacterRoomDataBase.getDataBase(requireActivity()).characterDataBaseDao()
+        val filmDao = CharacterRoomDataBase.getDataBase(requireActivity()).filmDataBaseDao()
+
+        //var character: CharacterDb? = realm.where(CharacterDb::class.java).equalTo("id",args.position).findFirst()
+
+
 
 
         scope.launch {
+            val character = characterDao.getCharacter(args.position)
+            var list:List<Int> = character!!.idList!!.split(",").map {
+                it.replace("/","").substringAfterLast("films").toInt()
+            }
 
-            val filmListDb = realm.where(FilmDb::class.java).findAll()
+            val filmListDb = filmDao.getAllFilm()//realm.where(FilmDb::class.java).findAll()
             val a = filmListDb.toString()
 
             for(i in list){
-                filmsDb!!.add(realm.where(FilmDb::class.java).equalTo("id",i-1).findFirst()!!)
+                filmsDb.add(filmDao.getFilm(i-1))//realm.where(FilmDb::class.java).equalTo("id",i-1).findFirst()!!)
             }
 
 
-            adapter.addFilmList(filmsDb!!)
+            adapter.addFilmList(filmsDb)
             adapter.notifyDataSetChanged()
-            binding.textViewDescription.text ="Name: ${character!!.name} \nMass: ${character!!.mass}" +
+            textView.text ="Name: ${character!!.name} \nMass: ${character!!.mass}" +
                     "\nHeight: ${character!!.height}"
+            if (character.type == "default") {
+                //переключение персонажа с default на favorite
+                binding.imageButton
+                    .setBackgroundResource(R.drawable.ic_baseline_star_border_24)
+            } else {
+                //переключение персонажа с favorite на default
+                binding.imageButton
+                    .setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
+            }
         }
 
         binding.imageButton.setOnClickListener {
+            CoroutineScope(Job()+Dispatchers.IO).launch {
+                var character = characterDao.getCharacter(args.position)
+                if (character.type == "default") {
+                    binding.imageButton
+                        .setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
+                    character.type = "favorite"
+                } else{//type=="favorite"
+                    binding.imageButton
+                        .setBackgroundResource(R.drawable.ic_baseline_star_border_24)
+                    character.type = "default"
+                }
+                characterDao.update(character)
+            }
+            /*
             if (character.type == "default") {
                 //переключение персонажа с default на favorite
                 binding.imageButton
@@ -87,6 +116,8 @@ class CharacterDescriptionFragment : Fragment() {
                     character.type = "default"
                 }
             }
+
+             */
         }
 
 

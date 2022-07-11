@@ -1,5 +1,7 @@
 package com.example.swapi.data.cloud
 
+import androidx.room.ColumnInfo
+import com.example.swapi.data.cache.FilmDataBaseEntity
 import com.google.gson.annotations.SerializedName
 
 data class FilmCloud(
@@ -30,4 +32,8 @@ data class FilmCloud(
     @SerializedName("edited")
     val edited: String,
     @SerializedName("url")
-    val url: String)
+    val url: String){
+    fun mapToFilmDataBaseEntity(id:Int): FilmDataBaseEntity {
+        return FilmDataBaseEntity(id,title,opening_crawl)
+    }
+}

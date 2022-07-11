@@ -13,13 +13,9 @@ import io.realm.Realm
 import kotlin.collections.ArrayList
 
 class SearchFragmentAdapter(
-    private val characterList: ArrayList<CharacterData>
+    private val characterList: ArrayList<CharacterData>,
+    private val onClickListener : OnClickListener
 ) : RecyclerView.Adapter<SearchFragmentAdapter.DataViewHolder>() {
-    private var onClickListener : OnClickListener? = null
-
-    fun setOnClickListener(onClickListener: OnClickListener){
-        this.onClickListener = onClickListener
-    }
 
     interface OnClickListener {
         fun onClickName(position: Int)
@@ -33,7 +29,7 @@ class SearchFragmentAdapter(
     }
 
     class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(characterData: CharacterData) {//, viewModel: FavoriteCharactersViewModel?) {
+        fun bind(characterData: CharacterData) {
             itemView.apply {
                 findViewById<Button>(R.id.name).text = characterData.name
                 if (characterData.type == "default") {
@@ -58,18 +54,15 @@ class SearchFragmentAdapter(
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) {
         holder.bind(characterList[position])//,viewModel)
         holder.itemView.findViewById<ImageButton>(R.id.favorite).setOnClickListener {
-            val realm = Realm.getDefaultInstance()
-            onClickListener!!.onClickFavoriteButton(characterList[position].type,characterList[position].id)
+            onClickListener.onClickFavoriteButton(characterList[position].type,characterList[position].id)
             if (characterList[position].type == "default") {
-                //переключение персонажа с default на favorite
                 holder.itemView.findViewById<ImageButton>(R.id.favorite)
                     .setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
                 characterList[position].type = "favorite"
             } else {
-                //переключение персонажа с favorite на default
                 holder.itemView.findViewById<ImageButton>(R.id.favorite)
                     .setBackgroundResource(R.drawable.ic_baseline_star_border_24)
-                if(onClickListener!!.onClickFavoriteOnSearchOrFavoritePage()){
+                if(onClickListener.onClickFavoriteOnSearchOrFavoritePage()){
                     removeItem(position)
                 }
                 else{
@@ -79,7 +72,7 @@ class SearchFragmentAdapter(
             }
         }
             holder.itemView.findViewById<Button>(R.id.name).setOnClickListener {
-                this.onClickListener!!.onClickName(characterList[position].id)
+                this.onClickListener.onClickName(characterList[position].id)
             }
     }
 

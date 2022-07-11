@@ -12,10 +12,17 @@ import androidx.navigation.findNavController
 import androidx.navigation.navGraphViewModels
 import com.example.swapi.adapter.SearchFragmentAdapter
 import com.example.swapi.data.CharacterData
+import com.example.swapi.data.cache.CharacterDataBaseDao
+import com.example.swapi.data.cache.CharacterDataBaseEntity
 import com.example.swapi.data.cache.CharacterDb
+import com.example.swapi.data.cache.CharacterRoomDataBase
 import com.example.swapi.databinding.FavoriteCharactersFragmentBinding
 import com.example.swapi.viewmodel.SearchViewModel
 import io.realm.Realm
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class FavoriteCharactersFragment : Fragment() {
 
@@ -25,9 +32,10 @@ class FavoriteCharactersFragment : Fragment() {
 
     private lateinit var adapter:SearchFragmentAdapter
 
-    private val mainViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
+    //private val mainViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
 
-    var listCharacter: MutableLiveData<List<CharacterDb>> = MutableLiveData()
+    var listCharacter: MutableLiveData<List<CharacterDataBaseEntity>> = MutableLiveData()
+    var listOfCharacter: List<CharacterDataBaseEntity> = listOf()
 
     private val onClickListener:SearchFragmentAdapter.OnClickListener = object:SearchFragmentAdapter.OnClickListener{
         override fun onClickName(position: Int) {
@@ -40,6 +48,16 @@ class FavoriteCharactersFragment : Fragment() {
             return true
         }
         override fun onClickFavoriteButton(type: String,id:Int) {
+            val dao = CharacterRoomDataBase.getDataBase(requireActivity()).characterDataBaseDao()
+            CoroutineScope(Job()+Dispatchers.IO).launch {
+                var character = dao.getCharacter(id)
+                if (type == "default")
+                    character.type = "favorite"
+                else//type=="favorite"
+                    character.type = "default"
+                dao.update(character)
+            }
+            /*
             Realm.getDefaultInstance().executeTransaction { r ->
                 val characterDb =
                     r.where(CharacterDb::class.java).equalTo("id", id)
@@ -49,6 +67,7 @@ class FavoriteCharactersFragment : Fragment() {
                 else//type=="favorite"
                     characterDb!!.type = "default"
             }
+             */
         }
 
 
@@ -63,11 +82,12 @@ class FavoriteCharactersFragment : Fragment() {
 
         var recyclerView = binding.favoriteRecyclerView
 
-        adapter = SearchFragmentAdapter(arrayListOf())//,viewModel)
-        adapter!!.setOnClickListener(onClickListener)
+        adapter = SearchFragmentAdapter(arrayListOf(),onClickListener)//,viewModel)
         recyclerView.adapter = adapter
 
-
+        val bd = CharacterRoomDataBase.getDataBase(requireActivity())
+        val dao = bd.characterDataBaseDao()
+        /*
         val realm = Realm.getDefaultInstance()
         listCharacter.value = realm.where(CharacterDb::class.java).equalTo("type","favorite").findAll()
 
@@ -75,6 +95,21 @@ class FavoriteCharactersFragment : Fragment() {
             retrieveList(dblist.map { characterDb->
                 characterDb.map()
             })
+        })
+
+         */
+        CoroutineScope(Job()+Dispatchers.IO).launch {
+            listOfCharacter = dao.getCharacterListByType("favorite")
+            val list = dao.getAllCharacter()
+            val size = list.size
+            retrieveList(listOfCharacter.map { characterDataBaseEntity ->
+                characterDataBaseEntity.mapToCharacterData() })
+
+        }
+
+        listCharacter.observe(viewLifecycleOwner, Observer { dbList->
+            retrieveList(dbList.map { characterDataBaseEntity ->
+                characterDataBaseEntity.mapToCharacterData() })
         })
         return binding.root
     }

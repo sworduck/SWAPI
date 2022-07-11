@@ -1,5 +1,7 @@
 package com.example.swapi.data
 
+import com.example.swapi.data.cache.CharacterDataBaseEntity
+
 data class CharacterData(val _id:Int){
     constructor(_id:Int,_name:String,_height:String,_mass:String,_filmIdList:String,_homeworld:String):this(_id){
         id = _id
@@ -25,8 +27,7 @@ data class CharacterData(val _id:Int){
     var filmIdList = ""
     var homeworld = "0"
     var type = "default"// default and favorite
-
-    override fun toString():String{
-        return "$id $name $height $mass $filmIdList $homeworld $type"
+    fun mapToCharacterDataBaseEntity():CharacterDataBaseEntity{
+        return CharacterDataBaseEntity(id,name,height,mass,homeworld,type, filmIdList)
     }
 }

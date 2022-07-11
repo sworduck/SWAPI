@@ -1,17 +1,15 @@
 package com.example.swapi.data.cache
 
 import com.example.swapi.data.CharacterData
-import io.realm.Realm
 
 interface CharacterCacheDataSource {
-    fun checkDataFromDB(page: Int): List<CharacterDb>?
+    fun checkDataFromDB(page: Int): List<CharacterDataBaseEntity>
 
-    fun fetchDataFromDB(page: Int): List<CharacterDb>?
+    fun fetchDataFromDB(page: Int): List<CharacterDataBaseEntity>
 
-    fun saveData(characterDataList: List<CharacterData>, page:Int)
+    suspend fun saveData(characterDataList: List<CharacterData>, page:Int)
 
-    fun setCount(page:Int)
-
+    /*
     class Base():CharacterCacheDataSource{
         private var count = 9
         override fun setCount(page:Int){
@@ -48,7 +46,6 @@ interface CharacterCacheDataSource {
                                 CharacterDb::class.java,
                                 characterDataList[i].id
                             )
-                        //characterDb.id = characterDataList[0].id
                         characterDb.name = characterDataList[i].name
                         characterDb.height = characterDataList[i].height
                         characterDb.mass = characterDataList[i].mass
@@ -79,5 +76,38 @@ interface CharacterCacheDataSource {
                 }
             }
         }
+    }
+
+     */
+    class Base():CharacterCacheDataSource {
+        override fun checkDataFromDB(page: Int): List<CharacterDataBaseEntity> {
+            return listOf()
+        }
+
+        override fun fetchDataFromDB(page: Int): List<CharacterDataBaseEntity> {
+            return listOf()
+        }
+
+        override suspend fun saveData(characterDataList: List<CharacterData>, page: Int) {
+            TODO("Not yet implemented")
+        }
+    }
+
+    class BaseRoom(db:CharacterRoomDataBase):CharacterCacheDataSource{
+        private val characterDataBaseDao: CharacterDataBaseDao = db.characterDataBaseDao()
+        override fun checkDataFromDB(page: Int): List<CharacterDataBaseEntity> {
+            return characterDataBaseDao.checkDataFromDB("default",page-1)
+        }
+
+        override fun fetchDataFromDB(page: Int): List<CharacterDataBaseEntity> {
+            return characterDataBaseDao.getCharacterList(page-1)
+        }
+
+        override suspend fun saveData(characterDataList: List<CharacterData>, page: Int) {
+            characterDataBaseDao.insertList(characterDataList.map { characterData -> characterData.mapToCharacterDataBaseEntity() })
+            //val list = characterDataBaseDao.getAllCharacter()
+            //val size = list.size
+        }
+
     }
 }

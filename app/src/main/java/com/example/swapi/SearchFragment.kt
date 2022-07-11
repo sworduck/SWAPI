@@ -16,6 +16,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -25,11 +26,13 @@ import com.example.swapi.adapter.SearchFragmentAdapter
 import com.example.swapi.api.CharacterService
 import com.example.swapi.data.*
 import com.example.swapi.data.cache.CharacterDb
+import com.example.swapi.data.cache.CharacterRoomDataBase
 import com.example.swapi.data.cache.FilmDb
 import com.example.swapi.data.cloud.FilmCloudList
 import com.example.swapi.databinding.SearchFragmentBinding
 import com.example.swapi.utilis.Status
 import com.example.swapi.viewmodel.SearchViewModel
+import com.example.swapi.viewmodel.SearchViewModelFactory
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.realm.Realm
@@ -44,7 +47,7 @@ class SearchFragment : Fragment() {
 
     private val BASE_URL = "https://swapi.dev/"
 
-    private val mainViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
+    private lateinit var mainViewModel:SearchViewModel //by navGraphViewModels(R.id.navigation)
 
 
     private lateinit var binding: SearchFragmentBinding
@@ -75,6 +78,17 @@ class SearchFragment : Fragment() {
         }
 
         override fun onClickFavoriteButton(type: String,id:Int) {
+            val dao = CharacterRoomDataBase.getDataBase(requireActivity()).characterDataBaseDao()
+            CoroutineScope(Job()+Dispatchers.IO).launch {
+                var character = dao.getCharacter(id)
+                if (type == "default")
+                    character.type = "favorite"
+                else//type=="favorite"
+                    character.type = "default"
+                dao.update(character)
+            }
+
+            /*
             Realm.getDefaultInstance().executeTransaction { r ->
                 val characterDb =
                     r.where(CharacterDb::class.java).equalTo("id", id)
@@ -84,6 +98,7 @@ class SearchFragment : Fragment() {
                 else//type=="favorite"
                     characterDb!!.type = "default"
             }
+             */
         }
 
 
@@ -103,7 +118,10 @@ class SearchFragment : Fragment() {
         errorMessage = binding.errorMessage
 
         fetchFilmList()
-        isInternetAvailable(requireActivity())
+        //isInternetAvailable(requireActivity())
+
+        mainViewModel = ViewModelProvider(this, SearchViewModelFactory(requireActivity()))
+            .get(SearchViewModel::class.java)
         setupUI()
 
         if(mainViewModel.page.value == null){
@@ -137,14 +155,13 @@ class SearchFragment : Fragment() {
 
     private fun setupUI() {
         recyclerView!!.layoutManager = LinearLayoutManager(activity)
-        adapter = SearchFragmentAdapter(arrayListOf())
+        adapter = SearchFragmentAdapter(arrayListOf(),onClickListener)
         recyclerView!!.addItemDecoration(
             DividerItemDecoration(
                 recyclerView!!.context,
                 (recyclerView!!.layoutManager as LinearLayoutManager).orientation
             )
         )
-        adapter!!.setOnClickListener(onClickListener)
         recyclerView!!.adapter = adapter
     }
 
@@ -161,7 +178,8 @@ class SearchFragment : Fragment() {
                         errorMessage!!.visibility = View.GONE
 
                         resource.data?.let { characterDataList ->
-                            retrieveList(checkFavoriteCharacterListInResponseFromServer(characterDataList,page)) }
+                            //retrieveList(checkFavoriteCharacterListInResponseFromServer(characterDataList,page)) }
+                            retrieveList(characterDataList) }
                         if(countCachedPages<this.mainViewModel.page.value!!){
                             countCachedPages = this.mainViewModel.page.value!!
                         }
@@ -225,30 +243,21 @@ class SearchFragment : Fragment() {
         }
     }
     private fun fetchFilmList(){
-        val realm = Realm.getDefaultInstance()
-        var filmList: MutableLiveData<FilmCloudList> = MutableLiveData()
-        filmList.observe(viewLifecycleOwner, Observer {
-            realm.executeTransactionAsync { r: Realm ->
-                for (i in filmList.value!!.results!!.indices) {
-                    val filmDb =
-                        r.createObject(FilmDb::class.java, i)
-                    filmDb.title = filmList.value!!.results!![i].title
-                    filmDb.opening_crawl = filmList.value!!.results!![i].opening_crawl
-                    r.insertOrUpdate(filmDb)
-                }
-            }
-        })
-        var filmDbList = realm.where(FilmDb::class.java).findAll()
-        if (filmDbList.isEmpty()) {
-            CoroutineScope(Job() + Dispatchers.Main).launch {
-                    val retrofit = Retrofit.Builder()
-                        .baseUrl(BASE_URL)
-                        .build()
-                    val typeCharacter = object : TypeToken<FilmCloudList>() {}.type
-                    val service = retrofit.create(CharacterService::class.java)
-                    filmList.value =
-                        Gson().fromJson(service.fetchFilmList().string(), typeCharacter)
-
+        //val realm = Realm.getDefaultInstance()
+        val filmDao = CharacterRoomDataBase.getDataBase(requireActivity()).filmDataBaseDao()
+        var filmList: FilmCloudList? = null
+        CoroutineScope(Job() + Dispatchers.IO).launch {
+            var filmDbList = filmDao.getAllFilm()//realm.where(FilmDb::class.java).findAll()
+            if (filmDbList.isEmpty()) {
+                val retrofit = Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .build()
+                val typeCharacter = object : TypeToken<FilmCloudList>() {}.type
+                val service = retrofit.create(CharacterService::class.java)
+                filmList = Gson().fromJson(service.fetchFilmList().string(), typeCharacter)
+                filmDao.insertList(filmList!!.results!!.mapIndexed { index, filmCloud ->
+                    filmCloud.mapToFilmDataBaseEntity(index)
+                })
             }
         }
 

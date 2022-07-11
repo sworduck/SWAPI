@@ -3,6 +3,7 @@ package com.example.swapi.data.cache
 import com.example.swapi.data.CharacterData
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
+import io.realm.annotations.Required
 
 open class CharacterDb(): RealmObject(){
     constructor(_id:Int,_name:String,_height:String,_mass:String,_idList:String,_homeworld:String):this(){
@@ -30,6 +31,7 @@ open class CharacterDb(): RealmObject(){
     var mass = "0"
     var homeworld = "0"
     var type = "default"//default and favorite
-    var idList:String? = ""
-    fun map() = CharacterData(id,name,height,mass,idList!!,homeworld,type)
+    @Required
+    var idList:String = ""
+    fun map() = CharacterData(id,name,height,mass,idList,homeworld,type)
 }

@@ -31,29 +31,33 @@ class DataLayerTests {
     lateinit var mockRealm: Realm
 
     @Test
-    fun testRepositorySaveCharacterList()= runBlocking {
-        val repository = SearchRepository.Base(TestCharacterListFromCloud(),TestCharacterCacheDataSource())
+    fun testRepositorySaveCharacterList() = runBlocking {
+        val repository =
+            SearchRepository.Base(TestCharacterListFromCloud(), TestCharacterCacheDataSource())
         var actual = repository.fetchCharacterList(1)
-        val expected = listOf(CharacterData(0,"1","1","1","1","1","default")
-            ,CharacterData(1,"1","1","1","1","1","default"))
-        assertEquals(expected,actual)
+        val expected = listOf(CharacterData(0, "1", "1", "1", "1", "1", "default"),
+            CharacterData(1, "1", "1", "1", "1", "1", "default"))
+        assertEquals(expected, actual)
         actual = repository.fetchCharacterList(1)
-        assertEquals(expected,actual)
+        assertEquals(expected, actual)
     }
 
 
-    class TestCharacterListFromCloud:CharacterListFromCloud {
+    class TestCharacterListFromCloud : CharacterListFromCloud {
         override suspend fun getCharacterList(page: Int): CharacterCloudList {
-            return CharacterCloudList(1,"1","1",listOf<CharacterCloud>(CharacterCloud("1","1","1","1","1","1","1","1","1",
-                listOf("1"), listOf("1"), listOf("1"), listOf("1"),"1","1","1")
-                ,CharacterCloud("1","1","1","1","1","1","1","1","1",
-                    listOf("1"), listOf("1"), listOf("1"), listOf("1"),"1","1","1")))
+            return CharacterCloudList(1,
+                "1",
+                "1",
+                listOf<CharacterCloud>(CharacterCloud("1", "1", "1", "1", "1", "1", "1", "1", "1",
+                    listOf("1"), listOf("1"), listOf("1"), listOf("1"), "1", "1", "1"),
+                    CharacterCloud("1", "1", "1", "1", "1", "1", "1", "1", "1",
+                        listOf("1"), listOf("1"), listOf("1"), listOf("1"), "1", "1", "1")))
         }
     }
 
 
-    class TestCharacterCacheDataSource: CharacterCacheDataSource{
-        private var list:MutableList<CharacterDb> = mutableListOf()
+    class TestCharacterCacheDataSource : CharacterCacheDataSource {
+        private var list: MutableList<CharacterDb> = mutableListOf()
         override fun checkDataFromDB(page: Int): List<CharacterDb>? {
             //not used here
             return listOf()
@@ -63,11 +67,15 @@ class DataLayerTests {
             return list
         }
 
-        override fun saveData(characterDataList: List<CharacterData>, page: Int) {
+        override suspend fun saveData(characterDataList: List<CharacterData>, page: Int) {
             list.clear()
             list.addAll(characterDataList.map { characterData ->
-                CharacterDb(characterData.id,characterData.name,characterData.height,characterData.mass,
-                characterData.filmIdList,characterData.homeworld)
+                CharacterDb(characterData.id,
+                    characterData.name,
+                    characterData.height,
+                    characterData.mass,
+                    characterData.filmIdList,
+                    characterData.homeworld)
             })
         }
 
@@ -76,10 +84,6 @@ class DataLayerTests {
         }
 
     }
-
-
-
-
 
 
 }
