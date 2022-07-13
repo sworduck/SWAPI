@@ -11,64 +11,26 @@ import kotlinx.coroutines.flow.Flow
 
 interface SearchRepository {
     suspend fun fetchCharacterList(page: Int):List<CharacterData>
-    /*
-    class Base(private val characterListFromCloud: CharacterListFromCloud,
-    private val characterCacheDataSource: CharacterCacheDataSource):SearchRepository{
-
-        override suspend fun fetchCharacterList(page:Int):List<CharacterData>
-        {
-            characterCacheDataSource.setCount(page)
-            var characterList = characterCacheDataSource.checkDataFromDB(page)
-            if (characterList!!.isEmpty()) {
-                var resultFromCloud = characterListFromCloud.getCharacterList(page).results
-                characterCacheDataSource.saveData(
-                    resultFromCloud!!.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) },
-                    page
-                )
-                return resultFromCloud!!.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) }
-            } else {
-                return characterCacheDataSource.fetchDataFromDB(page)!!.map { characterDb -> characterDb.map() }
-            }
-        }
-    }
-
-     */
-
-    /*
-    class BaseRoom(private val characterDataBaseDao:CharacterDataBaseDao):SearchRepository{
-        val allCharacterDataBaseDao: Flow<List<CharacterDataBaseEntity>> = characterDataBaseDao.getCharacterList()
-        override suspend fun fetchCharacterList(page: Int): List<CharacterData> {
-            return listOf()
-        }
-        @Suppress("RedundantSuspendModifier")
-        @WorkerThread
-        suspend fun insert(characterDataBaseEntity: CharacterDataBaseEntity){
-            characterDataBaseDao.insert(characterDataBaseEntity)
-        }
-    }
-
-     */
     class BaseRoom(private val characterListFromCloud: CharacterListFromCloud,
                    private val characterCacheDataSource: CharacterCacheDataSource):SearchRepository{
         override suspend fun fetchCharacterList(page: Int): List<CharacterData> {
-            var resultFromCloud = characterListFromCloud.getCharacterList(page).results
-            return resultFromCloud!!.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) }
+            val resultFromCloud = characterListFromCloud.getCharacterList(page).results
+            return resultFromCloud.let {
+                it?.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) } ?: listOf()
+            }
         }
     }
     class BaseRoomTwo(private val characterListFromCloud: CharacterListFromCloud,
                    private val characterCacheDataSource: CharacterCacheDataSource):SearchRepository{
         override suspend fun fetchCharacterList(page: Int): List<CharacterData> {
 
-            var characterList = characterCacheDataSource.checkDataFromDB(page)
-            if (characterList!!.isEmpty()) {
-                var resultFromCloud = characterListFromCloud.getCharacterList(page).results
-                characterCacheDataSource.saveData(
-                    resultFromCloud!!.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) },
-                    page
-                )
-                return resultFromCloud!!.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) }
+            val characterList = characterCacheDataSource.checkDataFromDB(page)
+            if (characterList.isEmpty()) {
+                val resultFromCloud = characterListFromCloud.getCharacterList(page).results
+                characterCacheDataSource.saveData(resultFromCloud.let { it?.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) } ?: listOf() },page)
+                return resultFromCloud.let { it?.mapIndexed { i, characterCloud -> characterCloud.map(i+(page-1)*10) } ?: listOf() }
             } else {
-                return characterCacheDataSource.fetchDataFromDB(page)!!.map { characterDb -> characterDb.mapToCharacterData() }
+                return characterCacheDataSource.fetchDataFromDB(page).map { characterDb -> characterDb.mapToCharacterData() }
             }
 
         }

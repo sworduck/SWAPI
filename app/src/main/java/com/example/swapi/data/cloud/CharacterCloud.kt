@@ -23,13 +23,13 @@ data class CharacterCloud(
     @SerializedName("homeworld")
     val homeworld: String,
     @SerializedName("films")
-    val films: List<String>?=null,
+    val films: List<String> = listOf(),
     @SerializedName("species")
-    private val species: List<String>?=null,
+    private val species: List<String> = listOf(),
     @SerializedName("vehicles")
-    private val vehicles: List<String>?=null,
+    private val vehicles: List<String> = listOf(),
     @SerializedName("starships")
-    private val starships: List<String>?=null,
+    private val starships: List<String> = listOf(),
     @SerializedName("created")
     private val created: String,
     @SerializedName("edited")
@@ -40,5 +40,5 @@ data class CharacterCloud(
 
 ){
     fun map(id:Int) = CharacterData(id,name,height,mass,
-        films!!.joinToString(),homeworld)
+        films.joinToString(),homeworld)
 }

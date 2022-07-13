@@ -28,7 +28,6 @@ import retrofit2.Retrofit
 
 class MainActivity : AppCompatActivity(),RealmProvider {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-    private val BASE_URL = "https://swapi.dev/"
 
 
 
@@ -117,31 +116,5 @@ class MainActivity : AppCompatActivity(),RealmProvider {
         realm.executeTransactionAsync { r: Realm ->
             r.where(CharacterDb::class.java).equalTo("type","default").findAll().deleteAllFromRealm()
         }
-    }
-    private fun updateMigratedCharacterList(){
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .build()
-        val typeCharacter = object : TypeToken<CharacterCloud>() {}.type
-        val service = retrofit.create(CharacterService::class.java)
-        var realm = Realm.getDefaultInstance()
-        var characterDbList:MutableList<CharacterDb> = mutableListOf()
-        var characterCloud: CharacterCloud? = null
-        var characterDb: CharacterDb? = null
-        realm.executeTransaction { r:Realm->
-            characterDbList = realm.where(CharacterDb::class.java).equalTo("type","favorite").findAll()
-        }
-        CoroutineScope(Dispatchers.Main).launch {
-            for (i in characterDbList.indices) {
-                characterCloud = Gson().fromJson(service.fetchCharacter(characterDbList[i].id+1).string(), typeCharacter)
-                realm.executeTransaction { r: Realm ->
-                    characterDb = r.where(CharacterDb::class.java).equalTo("id", characterDbList[i].id)
-                        .findFirst()
-                    characterDb!!.idList = characterCloud!!.films!!.joinToString()
-                }
-            }
-        }
-
-
     }
 }

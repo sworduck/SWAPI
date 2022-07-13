@@ -28,12 +28,6 @@
         android:name="com.example.swapi.CharacterDescriptionFragment"
         android:label="character_description_fragment"
         tools:layout="@layout/character_description_fragment" >
-        <action
-            android:id="@+id/action_characterDescriptionFragment_to_searchFragment"
-            app:destination="@id/searchFragment" />
-        <action
-            android:id="@+id/action_characterDescriptionFragment_to_favoriteCharactersFragment"
-            app:destination="@id/favoriteCharactersFragment" />
         <argument
             android:name="position"
             app:argType="integer" />

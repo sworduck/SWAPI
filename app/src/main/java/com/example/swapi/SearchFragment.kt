@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.adapter.SearchFragmentAdapter
 import com.example.swapi.api.CharacterService
+import com.example.swapi.api.RetrofitBuilder
 import com.example.swapi.data.*
 import com.example.swapi.data.cache.CharacterDb
 import com.example.swapi.data.cache.CharacterRoomDataBase
@@ -45,7 +46,6 @@ import retrofit2.Retrofit
 
 class SearchFragment : Fragment() {
 
-    private val BASE_URL = "https://swapi.dev/"
 
     private lateinit var mainViewModel:SearchViewModel //by navGraphViewModels(R.id.navigation)
 
@@ -69,7 +69,7 @@ class SearchFragment : Fragment() {
 
     private val onClickListener:SearchFragmentAdapter.OnClickListener = object:SearchFragmentAdapter.OnClickListener{
         override fun onClickName(position: Int) {
-            view!!.findNavController().
+            view?.findNavController()?.
             navigate(SearchFragmentDirections.actionSearchFragmentToCharacterDescriptionFragment2(position,"search"))
         }
 
@@ -87,18 +87,6 @@ class SearchFragment : Fragment() {
                     character.type = "default"
                 dao.update(character)
             }
-
-            /*
-            Realm.getDefaultInstance().executeTransaction { r ->
-                val characterDb =
-                    r.where(CharacterDb::class.java).equalTo("id", id)
-                        .findFirst()
-                if(type=="default")
-                    characterDb!!.type = "favorite"
-                else//type=="favorite"
-                    characterDb!!.type = "default"
-            }
-             */
         }
 
 
@@ -124,29 +112,29 @@ class SearchFragment : Fragment() {
             .get(SearchViewModel::class.java)
         setupUI()
 
-        if(mainViewModel.page.value == null){
+        if(mainViewModel.page.value == 0){
             mainViewModel.page.value = 1
         }
         mainViewModel.page.observe(viewLifecycleOwner, Observer {
             setupObservers(it)
         })
 
-        retryButton!!.setOnClickListener {
-            if(retryButton!!.visibility==View.VISIBLE) {
+        retryButton?.setOnClickListener {
+            if(retryButton?.visibility==View.VISIBLE) {
                 this.mainViewModel.page.value = previousPage
             }
         }
 
         binding.next.setOnClickListener {
-            if(mainViewModel.page.value!!+1 in 1..9) {//9 потому что всего 82 персонажа, 9 страниц
-                previousPage = mainViewModel.page.value!!
+            if(mainViewModel.page.value ?: 1 + 1 in 1..9) {//9 потому что всего 82 персонажа, 9 страниц
+                previousPage = mainViewModel.page.value ?: 1
                 mainViewModel.page.value = (mainViewModel.page.value)?.plus(1)
             }
         }
 
         binding.previous.setOnClickListener {
-            if(mainViewModel.page.value!!-1 in 1..9) {//9 потому что всего 82 персонажа, 9 страниц
-                previousPage = mainViewModel.page.value!!
+            if(mainViewModel.page.value ?: 1 - 1 in 1..9) {//9 потому что всего 82 персонажа, 9 страниц
+                previousPage = mainViewModel.page.value ?: 1
                 mainViewModel.page.value = (mainViewModel.page.value)?.minus(1)
             }
         }
@@ -154,15 +142,15 @@ class SearchFragment : Fragment() {
     }
 
     private fun setupUI() {
-        recyclerView!!.layoutManager = LinearLayoutManager(activity)
+        recyclerView?.layoutManager = LinearLayoutManager(activity)
         adapter = SearchFragmentAdapter(arrayListOf(),onClickListener)
-        recyclerView!!.addItemDecoration(
+        recyclerView?.addItemDecoration(
             DividerItemDecoration(
-                recyclerView!!.context,
-                (recyclerView!!.layoutManager as LinearLayoutManager).orientation
+                recyclerView?.context,
+                (recyclerView?.layoutManager as LinearLayoutManager).orientation
             )
         )
-        recyclerView!!.adapter = adapter
+        recyclerView?.adapter = adapter
     }
 
     private fun setupObservers(page:Int) {
@@ -170,45 +158,45 @@ class SearchFragment : Fragment() {
             it?.let { resource ->
                 when (resource.status) {
                     Status.SUCCESS -> {
-                        recyclerView!!.visibility = View.VISIBLE
+                        recyclerView?.visibility = View.VISIBLE
                         binding.next.visibility=View.VISIBLE
                         binding.previous.visibility=View.VISIBLE
-                        progressBar!!.visibility = View.GONE
-                        retryButton!!.visibility = View.GONE
-                        errorMessage!!.visibility = View.GONE
+                        progressBar?.visibility = View.GONE
+                        retryButton?.visibility = View.GONE
+                        errorMessage?.visibility = View.GONE
 
                         resource.data?.let { characterDataList ->
                             //retrieveList(checkFavoriteCharacterListInResponseFromServer(characterDataList,page)) }
                             retrieveList(characterDataList) }
-                        if(countCachedPages<this.mainViewModel.page.value!!){
-                            countCachedPages = this.mainViewModel.page.value!!
+                        if(countCachedPages<this.mainViewModel.page.value ?: 1){
+                            countCachedPages = this.mainViewModel.page.value ?: 1
                         }
                     }
                     Status.ERROR -> {
-                            retryButton!!.visibility = View.VISIBLE
-                            errorMessage!!.visibility = View.VISIBLE
-                            recyclerView!!.visibility = View.GONE
-                            progressBar!!.visibility = View.GONE
+                            retryButton?.visibility = View.VISIBLE
+                            errorMessage?.visibility = View.VISIBLE
+                            recyclerView?.visibility = View.GONE
+                            progressBar?.visibility = View.GONE
                             binding.next.visibility=View.GONE
                             binding.previous.visibility=View.GONE
 
                         when(it.message){
                             "HTTP 404 NOT FOUND"->{
-                                errorMessage!!.text = "Отсутсвует интернет, попробуйте еще раз"
+                                errorMessage?.text = "Отсутсвует интернет, попробуйте еще раз"
                             }
                             "Unable to resolve host \"swapi.dev\": No address associated with hostname"->{
-                                errorMessage!!.text = "Отсутсвует интернет, попробуйте еще раз"
+                                errorMessage?.text = "Отсутсвует интернет, попробуйте еще раз"
                             }
                             else->{
-                                errorMessage!!.text = "Неизвестная ошибка, попробуйте еще раз"
+                                errorMessage?.text = "Неизвестная ошибка, попробуйте еще раз"
                             }
                         }
                     }
                     Status.LOADING -> {
-                        progressBar!!.visibility = View.VISIBLE
-                        recyclerView!!.visibility = View.GONE
-                        retryButton!!.visibility = View.GONE
-                        errorMessage!!.visibility = View.GONE
+                        progressBar?.visibility = View.VISIBLE
+                        recyclerView?.visibility = View.GONE
+                        retryButton?.visibility = View.GONE
+                        errorMessage?.visibility = View.GONE
                         binding.next.visibility=View.GONE
                         binding.previous.visibility=View.GONE
                     }
@@ -225,21 +213,23 @@ class SearchFragment : Fragment() {
                     characterDb.id
                 }
         }
-        for(i in characterList.indices){
-            if(characterList[i].id in list){
-                characterList[i].type = "favorite"
+        characterList.forEach { characterData ->
+            if(characterData.id in list){
+                characterData.type = "favorite"
             }
             else{
-                characterList[i].type = "default"
+                characterData.type = "default"
             }
         }
+
+
         return characterList
     }
 
     private fun retrieveList(characterList: List<CharacterData>) {
         adapter.apply {
-            this!!.addCharacterList(characterList.sortedBy { it.id })
-            this.notifyDataSetChanged()
+            this?.addCharacterList(characterList.sortedBy { it.id })
+            this?.notifyDataSetChanged()
         }
     }
     private fun fetchFilmList(){
@@ -249,15 +239,15 @@ class SearchFragment : Fragment() {
         CoroutineScope(Job() + Dispatchers.IO).launch {
             var filmDbList = filmDao.getAllFilm()//realm.where(FilmDb::class.java).findAll()
             if (filmDbList.isEmpty()) {
-                val retrofit = Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .build()
+                val service = RetrofitBuilder.apiService
                 val typeCharacter = object : TypeToken<FilmCloudList>() {}.type
-                val service = retrofit.create(CharacterService::class.java)
+                //val service = retrofit.create(CharacterService::class.java)
                 filmList = Gson().fromJson(service.fetchFilmList().string(), typeCharacter)
-                filmDao.insertList(filmList!!.results!!.mapIndexed { index, filmCloud ->
-                    filmCloud.mapToFilmDataBaseEntity(index)
-                })
+                filmList?.results?.let {
+                    filmDao.insertList(it.mapIndexed { index, filmCloud ->
+                        filmCloud.mapToFilmDataBaseEntity(index)
+                    })
+                }
             }
         }
 

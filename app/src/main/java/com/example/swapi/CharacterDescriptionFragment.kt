@@ -24,9 +24,6 @@ import kotlinx.coroutines.launch
 
 class CharacterDescriptionFragment : Fragment() {
     private lateinit var binding:CharacterDescriptionFragmentBinding
-    //private val mainViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
-
-    //private var textView:TextView?=null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,9 +39,8 @@ class CharacterDescriptionFragment : Fragment() {
         //val realm = Realm.getDefaultInstance()
 
 
-        var filmsDb: MutableList<FilmDataBaseEntity> = mutableListOf()
-        var filmsId:List<Int>? = null
-        var adapter = DescriptionFilmAdapter(arrayListOf())
+        val filmsDb: MutableList<FilmDataBaseEntity> = mutableListOf()
+        val adapter = DescriptionFilmAdapter(arrayListOf())
         binding.descriptionRecycler.adapter = adapter
         val characterDao = CharacterRoomDataBase.getDataBase(requireActivity()).characterDataBaseDao()
         val filmDao = CharacterRoomDataBase.getDataBase(requireActivity()).filmDataBaseDao()
@@ -56,22 +52,24 @@ class CharacterDescriptionFragment : Fragment() {
 
         scope.launch {
             val character = characterDao.getCharacter(args.position)
-            var list:List<Int> = character!!.idList!!.split(",").map {
+            val list:List<Int> = character.idList.split(",").map {
                 it.replace("/","").substringAfterLast("films").toInt()
             }
 
             val filmListDb = filmDao.getAllFilm()//realm.where(FilmDb::class.java).findAll()
             val a = filmListDb.toString()
 
-            for(i in list){
-                filmsDb.add(filmDao.getFilm(i-1))//realm.where(FilmDb::class.java).equalTo("id",i-1).findFirst()!!)
+            list.forEach {
+                filmsDb.add(filmDao.getFilm(it-1))
             }
+
+
 
 
             adapter.addFilmList(filmsDb)
             adapter.notifyDataSetChanged()
-            textView.text ="Name: ${character!!.name} \nMass: ${character!!.mass}" +
-                    "\nHeight: ${character!!.height}"
+            textView.text ="Name: ${character.name} \nMass: ${character.mass}" +
+                    "\nHeight: ${character.height}"
             if (character.type == "default") {
                 //переключение персонажа с default на favorite
                 binding.imageButton
@@ -85,7 +83,7 @@ class CharacterDescriptionFragment : Fragment() {
 
         binding.imageButton.setOnClickListener {
             CoroutineScope(Job()+Dispatchers.IO).launch {
-                var character = characterDao.getCharacter(args.position)
+                val character = characterDao.getCharacter(args.position)
                 if (character.type == "default") {
                     binding.imageButton
                         .setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
@@ -97,39 +95,12 @@ class CharacterDescriptionFragment : Fragment() {
                 }
                 characterDao.update(character)
             }
-            /*
-            if (character.type == "default") {
-                //переключение персонажа с default на favorite
-                binding.imageButton
-                    .setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
-                realm.executeTransaction { r ->
-
-                    character.type = "favorite"
-                }
-
-            } else {
-                //переключение персонажа с favorite на default
-                binding.imageButton
-                    .setBackgroundResource(R.drawable.ic_baseline_star_border_24)
-                realm.executeTransaction { r ->
-
-                    character.type = "default"
-                }
-            }
-
-             */
         }
 
 
 
         binding.button.setOnClickListener {
-            if(args.waySearchOrFavorite == "search")
-            requireView().findNavController()
-                .navigate(CharacterDescriptionFragmentDirections.actionCharacterDescriptionFragmentToSearchFragment())
-            else
-                requireView().findNavController()
-                    .navigate(CharacterDescriptionFragmentDirections.actionCharacterDescriptionFragmentToFavoriteCharactersFragment())
-
+            activity?.onBackPressed()   //как-то закрыть фрагмент
         }
         return binding.root
     }

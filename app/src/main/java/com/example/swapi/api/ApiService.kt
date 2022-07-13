@@ -17,4 +17,7 @@ interface ApiService {
 
     @GET("api/people/{id}")
     suspend fun fetchCharacter(@Path("id") id: Int): ResponseBody
+
+    @GET("api/films")
+    suspend fun fetchFilmList():ResponseBody
 }

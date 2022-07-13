@@ -17,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 class SearchViewModel(context: Context) : ViewModel() {
         private val characterListFromCloud = CharacterListFromCloud.Base(ApiHelper(RetrofitBuilder.apiService))
         private val characterCacheDataSource = CharacterCacheDataSource.BaseRoom(CharacterRoomDataBase.getDataBase(context))
-        var page: MutableLiveData<Int> = MutableLiveData<Int>()
+        var page: MutableLiveData<Int> = MutableLiveData<Int>(0)
         fun getCharacterList(page: Int) = liveData(Dispatchers.IO) {
                 emit(Resource.loading(data = null))
                 try {

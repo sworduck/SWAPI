@@ -30,7 +30,7 @@ class FavoriteCharactersFragment : Fragment() {
 
     private lateinit var binding: FavoriteCharactersFragmentBinding
 
-    private lateinit var adapter:SearchFragmentAdapter
+
 
     //private val mainViewModel:SearchViewModel by navGraphViewModels(R.id.navigation)
 
@@ -39,7 +39,7 @@ class FavoriteCharactersFragment : Fragment() {
 
     private val onClickListener:SearchFragmentAdapter.OnClickListener = object:SearchFragmentAdapter.OnClickListener{
         override fun onClickName(position: Int) {
-            view!!.findNavController().
+            view?.findNavController()?.
             navigate(FavoriteCharactersFragmentDirections
                 .actionFavoriteCharactersFragmentToCharacterDescriptionFragment(position,"favorite"))
         }
@@ -57,21 +57,9 @@ class FavoriteCharactersFragment : Fragment() {
                     character.type = "default"
                 dao.update(character)
             }
-            /*
-            Realm.getDefaultInstance().executeTransaction { r ->
-                val characterDb =
-                    r.where(CharacterDb::class.java).equalTo("id", id)
-                        .findFirst()
-                if(type=="default")
-                    characterDb!!.type = "favorite"
-                else//type=="favorite"
-                    characterDb!!.type = "default"
-            }
-             */
         }
-
-
     }
+    private var adapter:SearchFragmentAdapter = SearchFragmentAdapter(arrayListOf(),onClickListener)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -116,7 +104,7 @@ class FavoriteCharactersFragment : Fragment() {
 
     private fun retrieveList(characterList: List<CharacterData>) {
         adapter.apply {
-            this!!.addCharacterList(characterList)
+            this.addCharacterList(characterList)
             this.notifyDataSetChanged()
         }
     }
