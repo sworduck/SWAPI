@@ -6,12 +6,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitBuilder {
     private const val BASE_URL = "https://swapi.dev/"
 
+    val apiService: ApiService = getRetrofit().create(ApiService::class.java)
+
     private fun getRetrofit(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-
-    val apiService: ApiService = getRetrofit().create(ApiService::class.java)
 }

@@ -2,6 +2,6 @@ package com.example.swapi
 
 import android.content.Context
 
-interface RealmProvider{
+interface RealmProvider {
     fun provide(context: Context)
 }

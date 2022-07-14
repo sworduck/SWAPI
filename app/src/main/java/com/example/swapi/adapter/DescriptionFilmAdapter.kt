@@ -7,18 +7,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.R
 import com.example.swapi.data.cache.FilmDataBaseEntity
-import com.example.swapi.data.cache.FilmDb
 
-class DescriptionFilmAdapter(private val filmList:ArrayList<FilmDataBaseEntity>):RecyclerView.Adapter<DescriptionFilmAdapter.FilmViewHolder>() {
-
-    class FilmViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title: TextView = itemView.findViewById(R.id.title2)
-
-        val opening_crawl: TextView = itemView.findViewById(R.id.opening_crawl)
-    }
+class DescriptionFilmAdapter(private val filmList: ArrayList<FilmDataBaseEntity>) :
+    RecyclerView.Adapter<DescriptionFilmAdapter.FilmViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilmViewHolder {
-        return FilmViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.films_item,parent,false))
+        return FilmViewHolder(LayoutInflater.from(parent.context)
+            .inflate(R.layout.films_item, parent, false))
     }
 
     override fun onBindViewHolder(holderFilm: FilmViewHolder, position: Int) {
@@ -29,6 +24,7 @@ class DescriptionFilmAdapter(private val filmList:ArrayList<FilmDataBaseEntity>)
     override fun getItemCount(): Int {
         return filmList.count()
     }
+
     fun addFilmList(filmList: List<FilmDataBaseEntity>) {
         this.filmList.apply {
             clear()
@@ -36,4 +32,10 @@ class DescriptionFilmAdapter(private val filmList:ArrayList<FilmDataBaseEntity>)
         }
 
     }
+
+    class FilmViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val title: TextView = itemView.findViewById(R.id.title2)
+        val opening_crawl: TextView = itemView.findViewById(R.id.opening_crawl)
+    }
+
 }

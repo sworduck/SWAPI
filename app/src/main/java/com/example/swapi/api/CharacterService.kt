@@ -16,5 +16,5 @@ interface CharacterService {
     suspend fun fetchFilm(@Path("id") id: Int): ResponseBody
 
     @GET("api/films")
-    suspend fun fetchFilmList():ResponseBody
+    suspend fun fetchFilmList(): ResponseBody
 }

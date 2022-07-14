@@ -15,16 +15,20 @@ import kotlinx.coroutines.Dispatchers
 
 
 class SearchViewModel(context: Context) : ViewModel() {
-        private val characterListFromCloud = CharacterListFromCloud.Base(ApiHelper(RetrofitBuilder.apiService))
-        private val characterCacheDataSource = CharacterCacheDataSource.BaseRoom(CharacterRoomDataBase.getDataBase(context))
-        var page: MutableLiveData<Int> = MutableLiveData<Int>(0)
-        fun getCharacterList(page: Int) = liveData(Dispatchers.IO) {
-                emit(Resource.loading(data = null))
-                try {
-                        emit(Resource.success(data = SearchRepository.BaseRoomTwo(characterListFromCloud,characterCacheDataSource).fetchCharacterList(page)))
-                } catch (exception: Exception) {
-                        emit(Resource.error( data = null, message = exception.message?: "Error Occurred!" ))
-                }
+    private val characterListFromCloud =
+        CharacterListFromCloud.Base(ApiHelper(RetrofitBuilder.apiService))
+    private val characterCacheDataSource =
+        CharacterCacheDataSource.BaseRoom(CharacterRoomDataBase.getDataBase(context))
+    var page: MutableLiveData<Int> = MutableLiveData<Int>(0)
+
+    fun getCharacterList(page: Int) = liveData(Dispatchers.IO) {
+        emit(Resource.loading(data = null))
+        try {
+            emit(Resource.success(data = SearchRepository.BaseRoomTwo(characterListFromCloud,
+                characterCacheDataSource).fetchCharacterList(page)))
+        } catch (exception: Exception) {
+            emit(Resource.error(data = null, message = exception.message ?: "Error Occurred!"))
         }
+    }
 }
 

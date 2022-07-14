@@ -10,7 +10,6 @@ import com.example.swapi.api.CharacterService
 import com.example.swapi.data.CharacterData
 import com.example.swapi.data.cache.CharacterDataBaseDao
 import com.example.swapi.data.cache.CharacterDataBaseEntity
-import com.example.swapi.data.cache.CharacterDb
 import com.example.swapi.data.cache.CharacterRoomDataBase
 import com.example.swapi.data.cloud.CharacterCloud
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -26,9 +25,8 @@ import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 
 
-class MainActivity : AppCompatActivity(),RealmProvider {
+class MainActivity : AppCompatActivity(), RealmProvider {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,15 +38,15 @@ class MainActivity : AppCompatActivity(),RealmProvider {
 
 
         val navController = this.findNavController(R.id.nav_host_fragment)
-        val bottomNav:BottomNavigationView = findViewById(R.id.bottomNavigation)
+        val bottomNav: BottomNavigationView = findViewById(R.id.bottomNavigation)
         NavigationUI.setupWithNavController(bottomNav, navController)
 
-        val db  = CharacterRoomDataBase.getDataBase(this)
+        val db = CharacterRoomDataBase.getDataBase(this)
         val characterDataBaseDao: CharacterDataBaseDao = db.characterDataBaseDao()
-        val characterDataBaseEntity:CharacterDataBaseEntity = CharacterDataBaseEntity(
-            100,"1","1","1","1","default","1")
+        val characterDataBaseEntity: CharacterDataBaseEntity = CharacterDataBaseEntity(
+            100, "1", "1", "1", "1", "default", "1")
 
-        CoroutineScope(Job()+Dispatchers.IO).launch {
+        CoroutineScope(Job() + Dispatchers.IO).launch {
             //characterDataBaseDao.insert(characterDataBaseEntity)
             /*
             val list:List<CharacterDataBaseEntity> = characterDataBaseDao.getCharacterList(1)
@@ -95,26 +93,20 @@ class MainActivity : AppCompatActivity(),RealmProvider {
          */
 
 
-
     }
-    override fun provide(context: Context){
+
+    override fun provide(context: Context) {
         Realm.init(context)
         Realm.setDefaultConfiguration(
             RealmConfiguration.Builder()
-            .name("characterdb.realm")
-            //.encryptionKey(getKey())
-            .schemaVersion(5L)
-            //.deleteRealmIfMigrationNeeded()
-            //.migration(FilmRealmMigration())
-            .allowWritesOnUiThread(true)
-            .build())
+                .name("characterdb.realm")
+                //.encryptionKey(getKey())
+                .schemaVersion(5L)
+                //.deleteRealmIfMigrationNeeded()
+                //.migration(FilmRealmMigration())
+                .allowWritesOnUiThread(true)
+                .build())
         //Realm.setDefaultConfiguration(config)
     }
 
-    private fun clearDb(){
-        var realm = Realm.getDefaultInstance()
-        realm.executeTransactionAsync { r: Realm ->
-            r.where(CharacterDb::class.java).equalTo("type","default").findAll().deleteAllFromRealm()
-        }
-    }
 }

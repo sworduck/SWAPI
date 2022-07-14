@@ -7,11 +7,12 @@ import com.example.swapi.data.CharacterData
 
 @Entity
 data class FilmDataBaseEntity(
-    @ColumnInfo val idOnPage : Int,
-    @ColumnInfo val title : String,
-    @ColumnInfo val opening_crawl : String
-){
-    @PrimaryKey(autoGenerate = true) var id : Int = 0
+    @ColumnInfo val idOnPage: Int,
+    @ColumnInfo val title: String,
+    @ColumnInfo val opening_crawl: String,
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0
 
 
 }

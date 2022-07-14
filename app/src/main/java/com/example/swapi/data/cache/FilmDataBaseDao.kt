@@ -8,8 +8,7 @@ interface FilmDataBaseDao {
     fun getAllFilm(): List<FilmDataBaseEntity>
 
     @Query("SELECT * FROM FilmDataBaseEntity WHERE idOnPage=:id")
-    fun getFilm(id:Int): FilmDataBaseEntity
-
+    fun getFilm(id: Int): FilmDataBaseEntity
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(characterDataBaseEntity: FilmDataBaseEntity)
@@ -17,10 +16,8 @@ interface FilmDataBaseDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertList(characterDataBaseEntityList: List<FilmDataBaseEntity>)
 
-
-
     @Query("DELETE FROM FilmDataBaseEntity WHERE idOnPage = :id")
-    fun delete(id:Int)
+    fun delete(id: Int)
 
     @Query("DELETE FROM FilmDataBaseEntity")
     fun deleteAll()
