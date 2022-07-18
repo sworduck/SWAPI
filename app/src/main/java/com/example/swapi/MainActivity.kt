@@ -1,31 +1,20 @@
 package com.example.swapi
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
-import com.example.swapi.api.CharacterService
-import com.example.swapi.data.CharacterData
-import com.example.swapi.data.cache.CharacterDataBaseDao
 import com.example.swapi.data.cache.CharacterDataBaseEntity
-import com.example.swapi.data.cache.CharacterRoomDataBase
-import com.example.swapi.data.cloud.CharacterCloud
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import io.realm.Realm
-import io.realm.RealmConfiguration
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
 
-
-class MainActivity : AppCompatActivity(), RealmProvider {
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
 
 
@@ -41,8 +30,8 @@ class MainActivity : AppCompatActivity(), RealmProvider {
         val bottomNav: BottomNavigationView = findViewById(R.id.bottomNavigation)
         NavigationUI.setupWithNavController(bottomNav, navController)
 
-        val db = CharacterRoomDataBase.getDataBase(this)
-        val characterDataBaseDao: CharacterDataBaseDao = db.characterDataBaseDao()
+        //val db = CharacterRoomDataBase.getDataBase(this)
+        //val characterDataBaseDao: CharacterDataBaseDao = db.characterDataBaseDao()
         val characterDataBaseEntity: CharacterDataBaseEntity = CharacterDataBaseEntity(
             100, "1", "1", "1", "1", "default", "1")
 
@@ -93,20 +82,6 @@ class MainActivity : AppCompatActivity(), RealmProvider {
          */
 
 
-    }
-
-    override fun provide(context: Context) {
-        Realm.init(context)
-        Realm.setDefaultConfiguration(
-            RealmConfiguration.Builder()
-                .name("characterdb.realm")
-                //.encryptionKey(getKey())
-                .schemaVersion(5L)
-                //.deleteRealmIfMigrationNeeded()
-                //.migration(FilmRealmMigration())
-                .allowWritesOnUiThread(true)
-                .build())
-        //Realm.setDefaultConfiguration(config)
     }
 
 }

@@ -7,8 +7,9 @@ import com.example.swapi.data.cache.CharacterDataBaseEntity
 import com.example.swapi.data.cloud.CharacterListFromCloud
 
 interface SearchRepository {
+
     suspend fun fetchCharacterList(page: Int): List<CharacterData>
-    class BaseRoom(     //without cache
+    class BaseRoomTwo(     //without cache
         private val characterListFromCloud: CharacterListFromCloud,
         private val characterCacheDataSource: CharacterCacheDataSource,
     ) : SearchRepository {
@@ -24,7 +25,7 @@ interface SearchRepository {
         }
     }
 
-    class BaseRoomTwo(
+    class BaseRoom(
         private val characterListFromCloud: CharacterListFromCloud,
         private val characterCacheDataSource: CharacterCacheDataSource,
     ) : SearchRepository {
@@ -48,8 +49,6 @@ interface SearchRepository {
                 return characterCacheDataSource.fetchDataFromDB(page)
                     .map { characterDb -> characterDb.mapToCharacterData() }
             }
-
         }
     }
-
 }

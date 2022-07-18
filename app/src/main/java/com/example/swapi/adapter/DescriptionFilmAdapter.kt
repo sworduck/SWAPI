@@ -6,9 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.R
+import com.example.swapi.data.FilmData
 import com.example.swapi.data.cache.FilmDataBaseEntity
 
-class DescriptionFilmAdapter(private val filmList: ArrayList<FilmDataBaseEntity>) :
+class DescriptionFilmAdapter(private val filmList: ArrayList<FilmData>) :
     RecyclerView.Adapter<DescriptionFilmAdapter.FilmViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilmViewHolder {
@@ -25,7 +26,7 @@ class DescriptionFilmAdapter(private val filmList: ArrayList<FilmDataBaseEntity>
         return filmList.count()
     }
 
-    fun addFilmList(filmList: List<FilmDataBaseEntity>) {
+    fun addFilmList(filmList: List<FilmData>) {
         this.filmList.apply {
             clear()
             addAll(filmList)

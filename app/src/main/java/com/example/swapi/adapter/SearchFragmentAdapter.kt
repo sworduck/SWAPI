@@ -8,17 +8,18 @@ import android.widget.ImageButton
 import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.*
 import com.example.swapi.data.CharacterData
+import com.example.swapi.domain.ClickFavoriteButton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlin.collections.ArrayList
 
 class SearchFragmentAdapter(
     private val characterList: ArrayList<CharacterData>,
     private val onClickListener: OnClickListener,
+    private val clickFavoriteButton: ClickFavoriteButton
 ) : RecyclerView.Adapter<SearchFragmentAdapter.DataViewHolder>() {
-
-    private fun removeItem(position: Int) {
-        characterList.removeAt(position)
-        notifyItemRemoved(position)
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder =
         DataViewHolder(LayoutInflater.from(parent.context)
@@ -29,8 +30,7 @@ class SearchFragmentAdapter(
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) {
         holder.bind(characterList[position])//,viewModel)
         holder.itemView.findViewById<ImageButton>(R.id.favorite).setOnClickListener {
-            onClickListener.onClickFavoriteButton(characterList[position].type,
-                characterList[position].id)
+            clickFavoriteButton.onClickFavoriteButton(characterList[position].type, characterList[position].id)
             if (characterList[position].type == "default") {
                 holder.itemView.findViewById<ImageButton>(R.id.favorite)
                     .setBackgroundResource(R.drawable.ic_baseline_star_rate_24)
@@ -58,6 +58,11 @@ class SearchFragmentAdapter(
         }
     }
 
+    private fun removeItem(position: Int) {
+        characterList.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
     class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(characterData: CharacterData) {
             itemView.apply {
@@ -75,6 +80,5 @@ class SearchFragmentAdapter(
     interface OnClickListener {
         fun onClickName(position: Int)
         fun onClickFavoriteOnSearchOrFavoritePage(): Boolean
-        fun onClickFavoriteButton(type: String, id: Int)
     }
 }

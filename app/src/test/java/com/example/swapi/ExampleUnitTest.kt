@@ -1,16 +1,8 @@
 package com.example.swapi
 
-import com.example.swapi.api.CharacterService
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import org.junit.Test
 
 import org.junit.Assert.*
-import retrofit2.Retrofit
 
 /**
  * Example local unit test, which will execute on the development machine (host).

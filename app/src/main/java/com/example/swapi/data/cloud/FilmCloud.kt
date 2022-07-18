@@ -32,8 +32,8 @@ data class FilmCloud(
     @SerializedName("edited")
     val edited: String,
     @SerializedName("url")
-    val url: String,
-) {
+    val url: String) {
+
     fun mapToFilmDataBaseEntity(id: Int): FilmDataBaseEntity {
         return FilmDataBaseEntity(id, title, opening_crawl)
     }

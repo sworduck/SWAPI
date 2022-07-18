@@ -21,5 +21,4 @@ interface FilmDataBaseDao {
 
     @Query("DELETE FROM FilmDataBaseEntity")
     fun deleteAll()
-
 }

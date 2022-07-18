@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/favoriteCharactersFragment"
-        android:name="com.example.swapi.FavoriteCharactersFragment"
+        android:name="com.example.swapi.presentation.FavoriteFragment"
         android:label="favorite_characters_fragment"
         tools:layout="@layout/favorite_characters_fragment" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
-        android:name="com.example.swapi.SearchFragment"
+        android:name="com.example.swapi.presentation.SearchFragment"
         android:label="search_fragment"
         tools:layout="@layout/search_fragment" >
         <action
@@ -25,7 +25,7 @@
     </fragment>
     <fragment
         android:id="@+id/characterDescriptionFragment"
-        android:name="com.example.swapi.CharacterDescriptionFragment"
+        android:name="com.example.swapi.presentation.CharacterDescriptionFragment"
         android:label="character_description_fragment"
         tools:layout="@layout/character_description_fragment" >
         <argument
