@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.navArgs
 import com.example.swapi.R
 import com.example.swapi.adapter.DescriptionFilmAdapter
 import com.example.swapi.databinding.CharacterDescriptionFragmentBinding
@@ -18,7 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class CharacterDescriptionFragment : Fragment() {
     private lateinit var binding: CharacterDescriptionFragmentBinding
-    private var args:CharacterDescriptionFragmentArgs? = null //CharacterDescriptionFragmentArgs.fromBundle(requireArguments())
+    private val args:CharacterDescriptionFragmentArgs by navArgs() 
     private val descriptionViewModel:CharacterDescriptionViewModel by viewModels()
     private val adapter = DescriptionFilmAdapter(arrayListOf())
 
@@ -34,16 +35,15 @@ class CharacterDescriptionFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.descriptionRecycler.adapter = adapter
-        args = CharacterDescriptionFragmentArgs.fromBundle(requireArguments())
+        super.onViewCreated(view, savedInstanceState)
         initView()
         initObservers()
-        descriptionViewModel.viewCreated(args?.position ?:1)
-        super.onViewCreated(view, savedInstanceState)
+        descriptionViewModel.viewCreated(args.position ?:1)
     }
     private fun initView(){
+        binding.descriptionRecycler.adapter = adapter
         binding.imageButton.setOnClickListener {
-            descriptionViewModel.buttonClicked(args?.position ?:1)
+            descriptionViewModel.buttonClicked(args.position ?:1)
         }
         binding.back.setOnClickListener {
             activity?.onBackPressed()

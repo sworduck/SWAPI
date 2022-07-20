@@ -29,19 +29,6 @@ class FavoriteFragment : Fragment() {
     private lateinit var binding: FavoriteCharactersFragmentBinding
 
     private val favoriteViewModel:FavoriteViewModel by viewModels()
-
-    private val onClickListener: SearchFragmentAdapter.OnClickListener =
-        object : SearchFragmentAdapter.OnClickListener {
-            override fun onClickName(position: Int) {
-                view?.findNavController()?.navigate(FavoriteFragmentDirections
-                    .actionFavoriteCharactersFragmentToCharacterDescriptionFragment(position,
-                        "favorite"))
-            }
-
-            override fun onClickFavoriteOnSearchOrFavoritePage(): Boolean {
-                return true
-            }
-        }
     private var adapter: SearchFragmentAdapter? = null
 
 
@@ -63,7 +50,7 @@ class FavoriteFragment : Fragment() {
     }
 
     private fun initView(){
-        adapter = SearchFragmentAdapter(arrayListOf(), onClickListener,favoriteViewModel.clickFavoriteButton)
+        adapter = SearchFragmentAdapter(arrayListOf(), ::onClickName,::onClickFavoriteOnSearchOrFavoritePage,favoriteViewModel.clickFavoriteButton)
         favoriteViewModel.getCharacterListByType()
         binding.favoriteRecyclerView.adapter = adapter
     }
@@ -81,6 +68,16 @@ class FavoriteFragment : Fragment() {
             this?.addCharacterList(characterList)
             this?.notifyDataSetChanged()
         }
+    }
+
+    private fun onClickName(position: Int) {
+        view?.findNavController()?.navigate(FavoriteFragmentDirections
+            .actionFavoriteCharactersFragmentToCharacterDescriptionFragment(position,
+                "favorite"))
+    }
+
+    private fun onClickFavoriteOnSearchOrFavoritePage(): Boolean {
+        return true
     }
 
 

@@ -17,7 +17,8 @@ import kotlin.collections.ArrayList
 
 class SearchFragmentAdapter(
     private val characterList: ArrayList<CharacterData>,
-    private val onClickListener: OnClickListener,
+    private val onClick:(Int) -> Unit,
+    private val onFeaturedClick:()->Boolean,
     private val clickFavoriteButton: ClickFavoriteButton
 ) : RecyclerView.Adapter<SearchFragmentAdapter.DataViewHolder>() {
 
@@ -28,7 +29,7 @@ class SearchFragmentAdapter(
     override fun getItemCount(): Int = characterList.size
 
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) {
-        holder.bind(characterList[position])//,viewModel)
+        holder.bind(characterList[position])
         holder.itemView.findViewById<ImageButton>(R.id.favorite).setOnClickListener {
             clickFavoriteButton.onClickFavoriteButton(characterList[position].type, characterList[position].id)
             if (characterList[position].type == "default") {
@@ -38,7 +39,7 @@ class SearchFragmentAdapter(
             } else {
                 holder.itemView.findViewById<ImageButton>(R.id.favorite)
                     .setBackgroundResource(R.drawable.ic_baseline_star_border_24)
-                if (onClickListener.onClickFavoriteOnSearchOrFavoritePage()) {
+                if (onFeaturedClick()) {
                     removeItem(position)
                 } else {
                     characterList[position].type = "default"
@@ -47,7 +48,7 @@ class SearchFragmentAdapter(
             }
         }
         holder.itemView.findViewById<Button>(R.id.name).setOnClickListener {
-            this.onClickListener.onClickName(characterList[position].id)
+            onClick(characterList[position].id)
         }
     }
 
@@ -75,10 +76,5 @@ class SearchFragmentAdapter(
 
             }
         }
-    }
-
-    interface OnClickListener {
-        fun onClickName(position: Int)
-        fun onClickFavoriteOnSearchOrFavoritePage(): Boolean
     }
 }

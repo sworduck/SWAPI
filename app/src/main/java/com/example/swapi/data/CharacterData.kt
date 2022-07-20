@@ -2,12 +2,12 @@ package com.example.swapi.data
 
 import com.example.swapi.data.cache.CharacterDataBaseEntity
 
-data class CharacterData(val id: Int = 0,
-                         val name:String = "0",
-                         val height:String = "0",
-                         val mass:String = "0",
-                         val filmIdList:String = "",
-                         val homeworld:String = "0",
+data class CharacterData(val id: Int,
+                         val name:String,
+                         val height:String,
+                         val mass:String,
+                         val filmIdList:String,
+                         val homeworld:String,
                          var type:String = "default") {
 
     fun mapToCharacterDataBaseEntity(): CharacterDataBaseEntity {

@@ -41,7 +41,7 @@ class SearchViewModel @Inject constructor(
             if (filmDbList.isEmpty()) {
                 val typeCharacter = object : TypeToken<FilmCloudList>() {}.type
                 val filmList: FilmCloudList = Gson().fromJson(characterListFromCloud.fetchFilmList().string(), typeCharacter)
-                characterCacheDataSource.saveFilmList(filmList?.results?.let { filmCloudList->
+                characterCacheDataSource.saveFilmList(filmList.results?.let { filmCloudList->
                     filmCloudList.mapIndexed { id, filmCloud ->
                         filmCloud.mapToFilmDataBaseEntity(id)
                     }

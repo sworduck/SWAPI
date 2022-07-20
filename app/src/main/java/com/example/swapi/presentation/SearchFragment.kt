@@ -25,6 +25,10 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
+    companion object{
+        private const val LAST_PAGE: Int = 9
+    }
+
     private lateinit var binding: SearchFragmentBinding
     private val searchViewModel: SearchViewModel by viewModels()
     private var adapter: SearchFragmentAdapter? = null
@@ -35,24 +39,10 @@ class SearchFragment : Fragment() {
     private var previousPage = 1
     private var countCachedPages = 1
 
-    private val onClickListener: SearchFragmentAdapter.OnClickListener =
-        object : SearchFragmentAdapter.OnClickListener {
-            override fun onClickName(position: Int) {
-                view?.findNavController()
-                    ?.navigate(SearchFragmentDirections.actionSearchFragmentToCharacterDescriptionFragment2(
-                        position,
-                        "search"))
-            }
-
-            override fun onClickFavoriteOnSearchOrFavoritePage(): Boolean {
-                return false
-            }
-        }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.search_fragment, container, false)
         return binding.root
     }
@@ -68,7 +58,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun initObservers() {
-        searchViewModel?.page?.observe(viewLifecycleOwner, Observer {
+        searchViewModel.page.observe(viewLifecycleOwner, Observer {
             getCharacterList(it)
         })
     }
@@ -76,7 +66,7 @@ class SearchFragment : Fragment() {
     private fun initView() {
         recyclerView?.layoutManager = LinearLayoutManager(activity)
 
-        adapter = SearchFragmentAdapter(arrayListOf(), onClickListener,searchViewModel.clickFavoriteButton)
+        adapter = SearchFragmentAdapter(arrayListOf(), ::onClickName,::onClickFavoriteOnSearchOrFavoritePage,searchViewModel.clickFavoriteButton)
 
         recyclerView?.addItemDecoration(
             DividerItemDecoration(
@@ -90,52 +80,39 @@ class SearchFragment : Fragment() {
 
         retryButton?.setOnClickListener {
             if (retryButton?.visibility == View.VISIBLE) {
-                this.searchViewModel?.page?.value = previousPage
+                this.searchViewModel.page.value = previousPage
             }
         }
 
         binding.next.setOnClickListener {
-            if (searchViewModel?.page?.value ?: 1 + 1 in 1..9) {//9 потому что всего 82 персонажа, 9 страниц
-                previousPage = searchViewModel?.page?.value ?: 1
-                searchViewModel?.page?.value = (searchViewModel?.page?.value)?.plus(1)
+            if (searchViewModel.page.value ?: 1 + 1 in 1..LAST_PAGE) {
+                previousPage = searchViewModel.page.value ?: 1
+                searchViewModel.page.value = (searchViewModel.page.value)?.plus(1)
             }
         }
 
         binding.previous.setOnClickListener {
-            if (searchViewModel?.page?.value ?: 1 - 1 in 1..9) {//9 потому что всего 82 персонажа, 9 страниц
-                previousPage = searchViewModel?.page?.value ?: 1
-                searchViewModel?.page?.value = (searchViewModel?.page?.value)?.minus(1)
+            if (searchViewModel.page.value ?: 1 - 1 in 1..LAST_PAGE) {
+                previousPage = searchViewModel.page.value ?: 1
+                searchViewModel.page.value = (searchViewModel.page.value)?.minus(1)
             }
         }
     }
 
     private fun getCharacterList(page: Int) {
-        searchViewModel?.getCharacterList(page)?.observe(viewLifecycleOwner, Observer {
+        searchViewModel.getCharacterList(page).observe(viewLifecycleOwner, Observer {
             it?.let { resource ->
+                setVisibility(resource.status)
                 when (resource.status) {
                     Status.SUCCESS -> {
-                        recyclerView?.visibility = View.VISIBLE
-                        binding.next.visibility = View.VISIBLE
-                        binding.previous.visibility = View.VISIBLE
-                        progressBar?.visibility = View.GONE
-                        retryButton?.visibility = View.GONE
-                        errorMessage?.visibility = View.GONE
-
                         resource.data?.let { characterDataList ->
                             retrieveList(characterDataList)
                         }
-                        if (countCachedPages < this.searchViewModel?.page?.value ?: 1) {
-                            countCachedPages = this.searchViewModel?.page?.value ?: 1
+                        if (countCachedPages < this.searchViewModel.page.value ?: 1) {
+                            countCachedPages = this.searchViewModel.page.value ?: 1
                         }
                     }
                     Status.ERROR -> {
-                        retryButton?.visibility = View.VISIBLE
-                        errorMessage?.visibility = View.VISIBLE
-                        recyclerView?.visibility = View.GONE
-                        progressBar?.visibility = View.GONE
-                        binding.next.visibility = View.GONE
-                        binding.previous.visibility = View.GONE
-
                         when (it.message) {
                             "HTTP 404 NOT FOUND" -> {
                                 errorMessage?.text = "Отсутсвует интернет, попробуйте еще раз"
@@ -149,12 +126,7 @@ class SearchFragment : Fragment() {
                         }
                     }
                     Status.LOADING -> {
-                        progressBar?.visibility = View.VISIBLE
-                        recyclerView?.visibility = View.GONE
-                        retryButton?.visibility = View.GONE
-                        errorMessage?.visibility = View.GONE
-                        binding.next.visibility = View.GONE
-                        binding.previous.visibility = View.GONE
+
                     }
                 }
             }
@@ -170,5 +142,45 @@ class SearchFragment : Fragment() {
 
     private fun fetchFilmList() {
         searchViewModel.saveFilmList()
+    }
+
+    private fun onClickName(position: Int) {
+        view?.findNavController()
+            ?.navigate(SearchFragmentDirections.actionSearchFragmentToCharacterDescriptionFragment2(
+                position,
+                "search"))
+    }
+
+    private fun onClickFavoriteOnSearchOrFavoritePage(): Boolean {
+        return false
+    }
+
+    private fun setVisibility(status: Status){
+        when (status) {
+            Status.SUCCESS -> {
+                recyclerView?.visibility = View.VISIBLE
+                binding.next.visibility = View.VISIBLE
+                binding.previous.visibility = View.VISIBLE
+                progressBar?.visibility = View.GONE
+                retryButton?.visibility = View.GONE
+                errorMessage?.visibility = View.GONE
+            }
+            Status.ERROR -> {
+                retryButton?.visibility = View.VISIBLE
+                errorMessage?.visibility = View.VISIBLE
+                recyclerView?.visibility = View.GONE
+                progressBar?.visibility = View.GONE
+                binding.next.visibility = View.GONE
+                binding.previous.visibility = View.GONE
+            }
+            Status.LOADING -> {
+                progressBar?.visibility = View.VISIBLE
+                recyclerView?.visibility = View.GONE
+                retryButton?.visibility = View.GONE
+                errorMessage?.visibility = View.GONE
+                binding.next.visibility = View.GONE
+                binding.previous.visibility = View.GONE
+            }
+        }
     }
 }
