@@ -1,4 +1,4 @@
-package com.example.swapi.data.cloud
+package com.example.swapi.data.cloud.character
 
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable

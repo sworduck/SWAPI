@@ -1,6 +1,6 @@
 package com.example.swapi.data
 
-import com.example.swapi.data.cache.CharacterDataBaseEntity
+import com.example.swapi.data.cache.character.CharacterDataBaseEntity
 
 data class CharacterData(val id: Int,
                          val name:String,

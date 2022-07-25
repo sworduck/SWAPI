@@ -1,12 +1,12 @@
 package com.example.swapi.domain
 
-import com.example.swapi.data.cache.CharacterCacheDataSource
+import com.example.swapi.data.cache.BaseCacheDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class ClickFavoriteButton(private val characterCacheDataSource:CharacterCacheDataSource) {
+class FavoriteUseCase(private val characterCacheDataSource:BaseCacheDataSource) {
 
     fun onClickFavoriteButton(type: String, id: Int) {
         CoroutineScope(Job() + Dispatchers.IO).launch {

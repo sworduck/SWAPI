@@ -1,4 +1,4 @@
-package com.example.swapi.data.cache
+package com.example.swapi.data.cache.film
 
 import androidx.room.*
 

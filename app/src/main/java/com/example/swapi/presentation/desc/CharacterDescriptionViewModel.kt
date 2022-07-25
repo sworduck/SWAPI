@@ -1,15 +1,12 @@
-package com.example.swapi.presentation.viewmodel
+package com.example.swapi.presentation.desc
 
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.swapi.R
 import com.example.swapi.data.FilmData
-import com.example.swapi.data.SearchRepository
-import com.example.swapi.data.cache.CharacterCacheDataSource
-import com.example.swapi.data.cache.FilmDataBaseEntity
-import com.example.swapi.domain.ClickFavoriteButton
+import com.example.swapi.data.cache.BaseCacheDataSource
+import com.example.swapi.data.cache.film.FilmDataBaseEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CharacterDescriptionViewModel @Inject constructor(
-    private val characterCacheDataSource: CharacterCacheDataSource
+    private val characterListFromCache: BaseCacheDataSource
 ):ViewModel() {
 
     private val _buttonStateLiveData = MutableLiveData(R.drawable.ic_baseline_star_rate_24)
@@ -34,11 +31,11 @@ class CharacterDescriptionViewModel @Inject constructor(
 
     fun viewCreated(position: Int){
         CoroutineScope(Job() + Dispatchers.IO).launch{
-            val character = characterCacheDataSource.getCharacter(position)
+            val character = characterListFromCache.getCharacter(position)
             val list: List<Int> = character.idList.split(",").map {
                 it.replace("/", "").substringAfterLast("films").toInt()
             }
-            val filmListDb = characterCacheDataSource.fetchFilmList()
+            val filmListDb = characterListFromCache.fetchFilmList()
             val filmsDb:MutableList<FilmDataBaseEntity> = mutableListOf()
 
             list.forEach {
@@ -54,14 +51,14 @@ class CharacterDescriptionViewModel @Inject constructor(
 
     fun buttonClicked(position: Int){
         CoroutineScope(Job() + Dispatchers.IO).launch{
-            val character = characterCacheDataSource.getCharacter(position)
+            val character = characterListFromCache.getCharacter(position)
 
             if (character.type == "default")
                 character.type = "favorite"
             else//type=="favorite"
                 character.type = "default"
 
-            characterCacheDataSource.updateCharacter(character)
+            characterListFromCache.updateCharacter(character)
 
             if(character.type == "default") _buttonStateLiveData.postValue(R.drawable.ic_baseline_star_border_24)
             else _buttonStateLiveData.postValue(R.drawable.ic_baseline_star_rate_24)

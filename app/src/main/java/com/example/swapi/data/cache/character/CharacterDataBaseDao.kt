@@ -1,7 +1,6 @@
-package com.example.swapi.data.cache
+package com.example.swapi.data.cache.character
 
 import androidx.room.*
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CharacterDataBaseDao {

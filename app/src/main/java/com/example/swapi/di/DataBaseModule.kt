@@ -2,10 +2,11 @@ package com.example.swapi.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.swapi.api.ApiService
-import com.example.swapi.data.cache.CharacterCacheDataSource
-import com.example.swapi.data.cache.CharacterRoomDataBase
-import com.example.swapi.data.cloud.CharacterListFromCloud
+import com.example.swapi.data.cache.BaseCacheDataSource
+import com.example.swapi.data.cache.SwapiRoomDataBase
+import com.example.swapi.data.cloud.ApiService
+import com.example.swapi.data.cloud.BaseCloudDataSource
+import com.example.swapi.domain.FavoriteUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,27 +20,36 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DataBaseModule {
 
+    const val BASE_URL = "https://swapi.dev/"
+
     @Provides
     @Singleton
-    fun provideDataBase(@ApplicationContext context: Context):CharacterRoomDataBase{
+    fun provideDataBase(@ApplicationContext context: Context):SwapiRoomDataBase{
         return Room.databaseBuilder(
             context,
-            CharacterRoomDataBase::class.java,
-            CharacterRoomDataBase.DATABASE_NAME
+            SwapiRoomDataBase::class.java,
+            SwapiRoomDataBase.DATABASE_NAME
         ).fallbackToDestructiveMigration().build()
     }
 
     @Provides
     @Singleton
-    fun provideCacheDataSource(db: CharacterRoomDataBase): CharacterCacheDataSource {
-        return CharacterCacheDataSource.BaseRoom(db)
+    fun provideCacheDataSource(db: SwapiRoomDataBase): BaseCacheDataSource {
+        return BaseCacheDataSource(db)
     }
+
+    @Provides
+    @Singleton
+    fun provideSearchFragmentAdapter(cacheDataSource: BaseCacheDataSource): FavoriteUseCase {
+        return FavoriteUseCase(cacheDataSource)
+    }
+
 
     @Singleton
     @Provides
     fun provideRetrofit():Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://swapi.dev/")
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -51,8 +61,8 @@ object DataBaseModule {
 
     @Provides
     @Singleton
-    fun provideCloudDataSource(service: ApiService): CharacterListFromCloud {
-        return CharacterListFromCloud.Base(service)
+    fun provideCloudDataSource(service: ApiService): BaseCloudDataSource {
+        return BaseCloudDataSource(service)
     }
 
 }

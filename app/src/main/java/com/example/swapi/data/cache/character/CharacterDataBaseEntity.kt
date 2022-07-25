@@ -1,4 +1,4 @@
-package com.example.swapi.data.cache
+package com.example.swapi.data.cache.character
 
 
 import androidx.room.ColumnInfo

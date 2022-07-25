@@ -1,9 +1,7 @@
-package com.example.swapi.api
+package com.example.swapi.data.cloud
 
-import com.example.swapi.data.cloud.CharacterCloudList
-import kotlinx.coroutines.Deferred
+import com.example.swapi.data.cloud.character.CharacterCloudList
 import okhttp3.ResponseBody
-import org.json.JSONArray
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query

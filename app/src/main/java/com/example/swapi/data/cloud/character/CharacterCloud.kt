@@ -1,4 +1,4 @@
-package com.example.swapi.data.cloud
+package com.example.swapi.data.cloud.character
 
 import com.example.swapi.data.CharacterData
 import com.google.gson.annotations.SerializedName
@@ -11,17 +11,17 @@ data class CharacterCloud(
     @SerializedName("mass")
     val mass: String,
     @SerializedName("hair_color")
-    private val hair_color: String,
+    private val hairColor: String,
     @SerializedName("skin_color")
-    private val skin_color: String,
+    private val skinColor: String,
     @SerializedName("eye_color")
-    private val eye_color: String,
+    private val eyeColor: String,
     @SerializedName("birth_year")
-    private val birth_year: String,
+    private val birthYear: String,
     @SerializedName("gender")
     private val gender: String,
     @SerializedName("homeworld")
-    val homeworld: String,
+    val homeWorld: String,
     @SerializedName("films")
     val films: List<String> = listOf(),
     @SerializedName("species")
@@ -38,5 +38,5 @@ data class CharacterCloud(
     private val url: String) {
 
     fun map(id: Int) = CharacterData(id, name, height, mass,
-        films.joinToString(), homeworld)
+        films.joinToString(), homeWorld)
 }
