@@ -35,7 +35,8 @@ data class CharacterCloud(
     @SerializedName("edited")
     private val edited: String,
     @SerializedName("url")
-    private val url: String) {
+    private val url: String
+) {
 
     fun map(id: Int) = CharacterData(id, name, height, mass,
         films.joinToString(), homeWorld)

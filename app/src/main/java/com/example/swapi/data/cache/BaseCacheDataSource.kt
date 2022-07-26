@@ -5,6 +5,7 @@ import com.example.swapi.data.cache.character.CharacterDataBaseDao
 import com.example.swapi.data.cache.character.CharacterDataBaseEntity
 import com.example.swapi.data.cache.film.FilmDataBaseDao
 import com.example.swapi.data.cache.film.FilmDataBaseEntity
+import com.example.swapi.utilis.Type
 
 class BaseCacheDataSource(db: SwapiRoomDataBase) : CacheDataSource {
 
@@ -12,7 +13,7 @@ class BaseCacheDataSource(db: SwapiRoomDataBase) : CacheDataSource {
     private val filmDataBaseDao: FilmDataBaseDao = db.filmDataBaseDao()
 
     override fun checkDataFromDB(page: Int): List<CharacterDataBaseEntity> {
-        return characterDataBaseDao.checkDataFromDB("default", page - 1)
+        return characterDataBaseDao.checkDataFromDB(Type.DEFAULT, page - 1)
     }
 
     override fun fetchDataFromDB(page: Int): List<CharacterDataBaseEntity> {
@@ -27,7 +28,7 @@ class BaseCacheDataSource(db: SwapiRoomDataBase) : CacheDataSource {
         return characterDataBaseDao.getCharacter(id)
     }
 
-    override fun getCharacterListByType(type: String): List<CharacterDataBaseEntity> {
+    override fun getCharacterListByType(type: Type): List<CharacterDataBaseEntity> {
         return characterDataBaseDao.getCharacterListByType(type)
     }
 

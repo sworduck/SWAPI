@@ -31,8 +31,5 @@
         <argument
             android:name="position"
             app:argType="integer" />
-        <argument
-            android:name="way_search_or_favorite"
-            app:argType="string" />
     </fragment>
 </navigation>

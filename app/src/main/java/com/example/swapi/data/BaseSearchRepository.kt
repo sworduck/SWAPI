@@ -5,7 +5,7 @@ import com.example.swapi.data.cloud.BaseCloudDataSource
 
 class BaseSearchRepository(
     private val characterListFromCloud: BaseCloudDataSource,
-    private val characterListFromCache: BaseCacheDataSource,
+    private val characterListFromCache: BaseCacheDataSource
 ) : SearchRepository {
     override suspend fun fetchCharacterList(page: Int): List<CharacterData> {
 

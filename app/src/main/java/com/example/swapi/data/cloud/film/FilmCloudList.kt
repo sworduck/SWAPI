@@ -12,5 +12,5 @@ data class FilmCloudList(
     @SerializedName("previous")
     val previous: String?,
     @SerializedName("results")
-    val results: List<FilmCloud>? = null,
+    val results: List<FilmCloud>? = null
 )

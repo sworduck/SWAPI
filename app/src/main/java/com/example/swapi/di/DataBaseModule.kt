@@ -20,11 +20,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DataBaseModule {
 
-    const val BASE_URL = "https://swapi.dev/"
-
     @Provides
     @Singleton
-    fun provideDataBase(@ApplicationContext context: Context):SwapiRoomDataBase{
+    fun provideDataBase(@ApplicationContext context: Context): SwapiRoomDataBase {
         return Room.databaseBuilder(
             context,
             SwapiRoomDataBase::class.java,
@@ -44,12 +42,11 @@ object DataBaseModule {
         return FavoriteUseCase(cacheDataSource)
     }
 
-
     @Singleton
     @Provides
-    fun provideRetrofit():Retrofit =
+    fun provideRetrofit(): Retrofit =
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(ApiService.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -64,5 +61,4 @@ object DataBaseModule {
     fun provideCloudDataSource(service: ApiService): BaseCloudDataSource {
         return BaseCloudDataSource(service)
     }
-
 }

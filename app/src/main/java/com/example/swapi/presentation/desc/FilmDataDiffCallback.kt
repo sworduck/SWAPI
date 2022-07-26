@@ -1,7 +1,6 @@
 package com.example.swapi.presentation.desc
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.swapi.data.CharacterData
 import com.example.swapi.data.FilmData
 
 class FilmDataDiffCallback : DiffUtil.ItemCallback<FilmData>() {

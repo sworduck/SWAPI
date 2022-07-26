@@ -8,10 +8,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
+import com.example.swapi.data.CharacterData
 import com.example.swapi.databinding.SearchFragmentBinding
-import com.example.swapi.utilis.ErrorType
-import com.example.swapi.utilis.Resource
-import com.example.swapi.utilis.Status
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -19,15 +17,16 @@ class SearchFragment : Fragment() {
 
     private lateinit var binding: SearchFragmentBinding
     private val searchViewModel: SearchViewModel by viewModels()
-    //при вызове происходит проблема с searchViewModel.getClickFavoriteButton() - из-за него ошибка  Can't access ViewModels from detached fragment
-    private var adapter:SearchFragmentAdapter? = null //SearchFragmentAdapter(::onClickName, ::onClickFavoriteOnSearchOrFavoritePage,
-    // searchViewModel.clickFavoriteButton())
+    private val adapter: SearchFragmentAdapter = SearchFragmentAdapter(::onClickName,
+        ::onClickFavoriteOnSearchOrFavoritePage,
+        ::clickFavoriteButton,
+        ::removeItem)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        binding = SearchFragmentBinding.inflate(inflater,container,false)
+        binding = SearchFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -39,42 +38,26 @@ class SearchFragment : Fragment() {
     }
 
     private fun initObservers() {
-
         searchViewModel.page.observe(viewLifecycleOwner) {
             searchViewModel.getCharacterList()
         }
-        searchViewModel.getCharacterList().observe(viewLifecycleOwner) {
-            it?.let { resource ->
-                setVisibility(resource.status)
-                when (resource.status) {
-                    Status.SUCCESS -> {
-                        resource.data?.let { characterDataList ->
-                            adapter?.submitList(characterDataList)
-                        }
-                    }
-                    Status.ERROR -> {
-                        when (it.message) {
-                            ErrorType.NO_CONNECTION -> {
-                                binding.errorMessage?.text = "Отсутсвует интернет, попробуйте еще раз"
-                            }
-                            ErrorType.SERVICE_UNAVAILABLE-> {
-                                binding.errorMessage?.text = "SWAPI не отвечает, попробуйте еще раз"
-                            }
-                            ErrorType.GENERIC_ERROR -> {
-                                binding.errorMessage?.text = "Неизвестная ошибка, попробуйте еще раз"
-                            }
-                        }
-                    }
-                }
-            }
+
+        searchViewModel.characterDataList.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
+            setVisibility(true)
+        }
+
+        searchViewModel.errorMessage.observe(viewLifecycleOwner) {
+            binding.errorMessage.text = it
+            setVisibility(false)
         }
     }
 
+    private fun clickFavoriteButton(characterData: CharacterData) {
+        searchViewModel.onClickFavoriteButton(characterData)
+    }
+
     private fun initView() {
-
-        adapter = SearchFragmentAdapter(::onClickName, ::onClickFavoriteOnSearchOrFavoritePage,
-             searchViewModel.clickFavoriteButton)
-
         binding.charactersRecyclerView.adapter = adapter
 
         binding.retryButton.setOnClickListener {
@@ -93,40 +76,34 @@ class SearchFragment : Fragment() {
     private fun onClickName(position: Int) {
         view?.findNavController()
             ?.navigate(SearchFragmentDirections.actionSearchFragmentToCharacterDescriptionFragment2(
-                position,
-                "search"))
+                position))
     }
 
     private fun onClickFavoriteOnSearchOrFavoritePage(): Boolean {
         return false
     }
 
-    private fun setVisibility(status: Status){
-        when (status) {
-            Status.SUCCESS -> {
-                binding.charactersRecyclerView.isVisible = true
-                binding.next.isVisible = true
-                binding.previous.isVisible = true
-                binding.progressbar.isVisible = false
-                binding.retryButton.isVisible = false
-                binding.errorMessage.isVisible = false
-            }
-            Status.ERROR -> {
-                binding.retryButton.isVisible = true
-                binding.errorMessage.isVisible = true
-                binding.charactersRecyclerView.isVisible = false
-                binding.progressbar.isVisible = false
-                binding.next.isVisible = false
-                binding.previous.isVisible = false
-            }
-            Status.LOADING -> {
-                binding.progressbar.isVisible = true
-                binding.charactersRecyclerView.isVisible = false
-                binding.retryButton.isVisible = false
-                binding.errorMessage.isVisible = false
-                binding.next.isVisible = false
-                binding.previous.isVisible = false
-            }
+    private fun removeItem(characterData: CharacterData) {
+        val list = adapter.currentList
+        list.remove(characterData)
+        adapter.submitList(list)
+    }
+
+    private fun setVisibility(boolean: Boolean) {
+        if (boolean) {
+            binding.charactersRecyclerView.isVisible = true
+            binding.next.isVisible = true
+            binding.previous.isVisible = true
+            binding.progressbar.isVisible = false
+            binding.retryButton.isVisible = false
+            binding.errorMessage.isVisible = false
+        } else {
+            binding.retryButton.isVisible = true
+            binding.errorMessage.isVisible = true
+            binding.charactersRecyclerView.isVisible = false
+            binding.progressbar.isVisible = false
+            binding.next.isVisible = false
+            binding.previous.isVisible = false
         }
     }
 }

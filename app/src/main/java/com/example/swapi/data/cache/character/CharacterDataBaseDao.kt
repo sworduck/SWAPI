@@ -1,6 +1,7 @@
 package com.example.swapi.data.cache.character
 
 import androidx.room.*
+import com.example.swapi.utilis.Type
 
 @Dao
 interface CharacterDataBaseDao {
@@ -14,10 +15,10 @@ interface CharacterDataBaseDao {
     fun getCharacterList(page: Int): List<CharacterDataBaseEntity>
 
     @Query("SELECT * FROM CharacterDataBaseEntity WHERE type LIKE :type AND idOnPage BETWEEN :page*10 AND :page*10+9")
-    fun checkDataFromDB(type: String, page: Int): List<CharacterDataBaseEntity>
+    fun checkDataFromDB(type: Type, page: Int): List<CharacterDataBaseEntity>
 
     @Query("SELECT * FROM CharacterDataBaseEntity WHERE type LIKE :type")
-    fun getCharacterListByType(type: String): List<CharacterDataBaseEntity>
+    fun getCharacterListByType(type: Type): List<CharacterDataBaseEntity>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(characterDataBaseEntity: CharacterDataBaseEntity)
@@ -35,5 +36,5 @@ interface CharacterDataBaseDao {
     fun deleteAll()
 
     @Query("DELETE FROM CharacterDataBaseEntity WHERE type = :type")
-    suspend fun deleteType(type: String)
+    suspend fun deleteType(type: Type)
 }

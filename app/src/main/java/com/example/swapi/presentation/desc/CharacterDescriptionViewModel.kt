@@ -7,6 +7,7 @@ import com.example.swapi.R
 import com.example.swapi.data.FilmData
 import com.example.swapi.data.cache.BaseCacheDataSource
 import com.example.swapi.data.cache.film.FilmDataBaseEntity
+import com.example.swapi.utilis.Type
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,8 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CharacterDescriptionViewModel @Inject constructor(
-    private val characterListFromCache: BaseCacheDataSource
-):ViewModel() {
+    private val characterListFromCache: BaseCacheDataSource,
+) : ViewModel() {
 
     private val _buttonStateLiveData = MutableLiveData(R.drawable.ic_baseline_star_rate_24)
     val buttonStateLiveData: LiveData<Int> = _buttonStateLiveData
@@ -28,18 +29,17 @@ class CharacterDescriptionViewModel @Inject constructor(
     private val _characterDescription = MutableLiveData<String>()
     val characterDescription: LiveData<String> = _characterDescription
 
-
-    fun viewCreated(position: Int){
-        CoroutineScope(Job() + Dispatchers.IO).launch{
+    fun viewCreated(position: Int) {
+        CoroutineScope(Job() + Dispatchers.IO).launch {
             val character = characterListFromCache.getCharacter(position)
             val list: List<Int> = character.idList.split(",").map {
                 it.replace("/", "").substringAfterLast("films").toInt()
             }
             val filmListDb = characterListFromCache.fetchFilmList()
-            val filmsDb:MutableList<FilmDataBaseEntity> = mutableListOf()
+            val filmsDb: MutableList<FilmDataBaseEntity> = mutableListOf()
 
             list.forEach {
-                filmsDb.add(filmListDb[it-1])
+                filmsDb.add(filmListDb[it - 1])
             }
 
             _characterDescription.postValue("Name: ${character.name} \nMass: ${character.mass}" +
@@ -49,19 +49,21 @@ class CharacterDescriptionViewModel @Inject constructor(
         }
     }
 
-    fun buttonClicked(position: Int){
-        CoroutineScope(Job() + Dispatchers.IO).launch{
+    fun buttonClicked(position: Int) {
+        CoroutineScope(Job() + Dispatchers.IO).launch {
             val character = characterListFromCache.getCharacter(position)
-
-            if (character.type == "default")
-                character.type = "favorite"
-            else//type=="favorite"
-                character.type = "default"
+            when (character.type) {
+                Type.DEFAULT -> {
+                    character.type = Type.FAVORITE
+                    _buttonStateLiveData.postValue(R.drawable.ic_baseline_star_border_24)
+                }
+                Type.FAVORITE -> {
+                    character.type = Type.DEFAULT
+                    _buttonStateLiveData.postValue(R.drawable.ic_baseline_star_rate_24)
+                }
+            }
 
             characterListFromCache.updateCharacter(character)
-
-            if(character.type == "default") _buttonStateLiveData.postValue(R.drawable.ic_baseline_star_border_24)
-            else _buttonStateLiveData.postValue(R.drawable.ic_baseline_star_rate_24)
         }
     }
 }

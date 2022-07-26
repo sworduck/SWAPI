@@ -13,5 +13,5 @@ data class CharacterCloudList(
     @SerializedName("previous")
     val previous: String?,
     @SerializedName("results")
-    val results: List<CharacterCloud>? = null,
+    val results: List<CharacterCloud>? = null
 )
