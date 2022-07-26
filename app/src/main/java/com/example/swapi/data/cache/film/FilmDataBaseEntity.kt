@@ -3,7 +3,6 @@ package com.example.swapi.data.cache.film
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.swapi.data.CharacterData
 import com.example.swapi.data.FilmData
 
 @Entity

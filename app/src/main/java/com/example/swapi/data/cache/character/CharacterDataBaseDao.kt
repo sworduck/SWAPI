@@ -26,7 +26,7 @@ interface CharacterDataBaseDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertList(characterDataBaseEntityList: List<CharacterDataBaseEntity>)
 
-    @Update()
+    @Update
     fun update(characterDataBaseEntity: CharacterDataBaseEntity)
 
     @Query("DELETE FROM CharacterDataBaseEntity WHERE idOnPage = :id")

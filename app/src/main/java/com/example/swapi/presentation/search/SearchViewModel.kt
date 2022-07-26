@@ -14,7 +14,6 @@ import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.net.UnknownHostException
@@ -43,7 +42,7 @@ class SearchViewModel @Inject constructor(
     private val _previousPage: MutableLiveData<Int> = MutableLiveData<Int>(1)
 
     fun viewCreated() {
-        CoroutineScope(Job() + Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val filmDbList = characterListFromCache.fetchFilmList()
             if (filmDbList.isEmpty()) {
                 val typeCharacter = object : TypeToken<FilmCloudList>() {}.type

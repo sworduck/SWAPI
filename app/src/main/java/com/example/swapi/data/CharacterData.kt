@@ -9,11 +9,11 @@ data class CharacterData(
     val height: String,
     val mass: String,
     val filmIdList: String,
-    val homeworld: String,
+    val homeWorld: String,
     var type: Type = Type.DEFAULT
 ) {
 
     fun mapToCharacterDataBaseEntity(): CharacterDataBaseEntity {
-        return CharacterDataBaseEntity(id, name, height, mass, homeworld, type, filmIdList)
+        return CharacterDataBaseEntity(id, name, height, mass, homeWorld, type, filmIdList)
     }
 }

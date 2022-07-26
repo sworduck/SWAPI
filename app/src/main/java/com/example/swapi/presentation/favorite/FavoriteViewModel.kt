@@ -11,7 +11,6 @@ import com.example.swapi.utilis.Type
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,7 +24,7 @@ class FavoriteViewModel @Inject constructor(
     val listCharacter: LiveData<List<CharacterDataBaseEntity>> = _listCharacter
 
     fun getCharacterListByType() {
-        CoroutineScope(Job() + Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             _listCharacter.postValue(characterListFromCache.getCharacterListByType(Type.FAVORITE))
         }
     }

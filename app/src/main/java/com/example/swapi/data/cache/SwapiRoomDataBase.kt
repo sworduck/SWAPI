@@ -10,7 +10,7 @@ import com.example.swapi.data.cache.film.FilmDataBaseDao
 import com.example.swapi.data.cache.film.FilmDataBaseEntity
 
 @Database(entities = [CharacterDataBaseEntity::class, FilmDataBaseEntity::class],
-    version = 2,
+    version = 4,
     exportSchema = false)
 @TypeConverters(Converter::class)
 abstract class SwapiRoomDataBase : RoomDatabase() {

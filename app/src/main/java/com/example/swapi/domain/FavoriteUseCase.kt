@@ -4,13 +4,12 @@ import com.example.swapi.data.cache.BaseCacheDataSource
 import com.example.swapi.utilis.Type
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class FavoriteUseCase(private val characterCacheDataSource:BaseCacheDataSource) {
 
     fun onClickFavoriteButton(type: Type, id: Int) {
-        CoroutineScope(Job() + Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val character = characterCacheDataSource.getCharacter(id)
             when(type){
                 Type.FAVORITE->{

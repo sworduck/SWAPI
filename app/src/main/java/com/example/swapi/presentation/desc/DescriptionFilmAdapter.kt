@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.swapi.data.FilmData
 import com.example.swapi.databinding.FilmsItemBinding
 
-class DescriptionFilmAdapter() :
+class DescriptionFilmAdapter :
     ListAdapter<FilmData, DescriptionFilmAdapter.FilmViewHolder>(FilmDataDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilmViewHolder {

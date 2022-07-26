@@ -11,7 +11,6 @@ import com.example.swapi.utilis.Type
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,7 +29,7 @@ class CharacterDescriptionViewModel @Inject constructor(
     val characterDescription: LiveData<String> = _characterDescription
 
     fun viewCreated(position: Int) {
-        CoroutineScope(Job() + Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val character = characterListFromCache.getCharacter(position)
             val list: List<Int> = character.idList.split(",").map {
                 it.replace("/", "").substringAfterLast("films").toInt()
@@ -50,7 +49,7 @@ class CharacterDescriptionViewModel @Inject constructor(
     }
 
     fun buttonClicked(position: Int) {
-        CoroutineScope(Job() + Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val character = characterListFromCache.getCharacter(position)
             when (character.type) {
                 Type.DEFAULT -> {

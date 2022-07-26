@@ -14,7 +14,7 @@ data class CharacterDataBaseEntity(
     @ColumnInfo val name: String,
     @ColumnInfo val height: String,
     @ColumnInfo val mass: String,
-    @ColumnInfo val homeworld: String,
+    @ColumnInfo val homeWorld: String,
     @ColumnInfo var type: Type,
     @ColumnInfo val idList: String
 ) {
@@ -22,6 +22,6 @@ data class CharacterDataBaseEntity(
     var id: Int = 0
 
     fun mapToCharacterData(): CharacterData {
-        return CharacterData(idOnPage, name, height, mass, idList, homeworld, type)
+        return CharacterData(idOnPage, name, height, mass, idList, homeWorld, type)
     }
 }

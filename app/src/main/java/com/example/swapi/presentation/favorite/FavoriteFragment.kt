@@ -27,7 +27,7 @@ class FavoriteFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         binding = FavoriteCharactersFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -49,7 +49,7 @@ class FavoriteFragment : Fragment() {
 
     private fun initObservers() {
         favoriteViewModel.listCharacter.observe(viewLifecycleOwner) { dbList ->
-            adapter?.submitList(dbList.map { characterDataBaseEntity ->
+            adapter.submitList(dbList.map { characterDataBaseEntity ->
                 characterDataBaseEntity.mapToCharacterData()
             })
         }
