@@ -7,25 +7,29 @@ class BaseSearchRepository(
     private val characterListFromCloud: BaseCloudDataSource,
     private val characterListFromCache: BaseCacheDataSource
 ) : SearchRepository {
-    override suspend fun fetchCharacterList(page: Int): List<CharacterData> {
+    override suspend fun fetchCharacterList(): List<CharacterData> {
 
-        val characterList = characterListFromCache.checkDataFromDB(page)
+        val characterList = characterListFromCache.fetchDataFromDB()
 
-        if (characterList.isEmpty()) {
-            val resultFromCloud = characterListFromCloud.getCharacterList(page).results
-            characterListFromCache.saveData(resultFromCloud.let {
-                it?.mapIndexed { i, characterCloud ->
-                    characterCloud.map(i + (page - 1) * 10)
-                } ?: listOf()
-            }, page)
-            return resultFromCloud.let {
-                it?.mapIndexed { i, characterCloud ->
-                    characterCloud.map(i + (page - 1) * 10)
-                } ?: listOf()
-            }
+        return if (characterList.isEmpty()) {
+            val resultFromCloud = getCharacterListFromCloud()
+            characterListFromCache.saveData(resultFromCloud)
+            resultFromCloud
         } else {
-            return characterListFromCache.fetchDataFromDB(page)
+            characterList
                 .map { characterDb -> characterDb.mapToCharacterData() }
         }
+    }
+
+    private suspend fun getCharacterListFromCloud(): List<CharacterData> {
+        var page = 1
+        val result = arrayListOf<CharacterData>()
+        do {
+            val characterListFromCloud = characterListFromCloud.getCharacterList(page)
+            result.addAll(characterListFromCloud.results.let {resultList-> resultList?.mapIndexed {
+                    i,data-> data.map(i+ (page - 1) * 10) } } ?: listOf())
+            page++
+        } while (characterListFromCloud.next != null)
+        return result.toList()
     }
 }

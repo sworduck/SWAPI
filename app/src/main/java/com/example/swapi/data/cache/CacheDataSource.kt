@@ -6,9 +6,7 @@ import com.example.swapi.data.cache.film.FilmDataBaseEntity
 import com.example.swapi.utilis.Type
 
 interface CacheDataSource {
-    fun checkDataFromDB(page: Int): List<CharacterDataBaseEntity>
-
-    fun fetchDataFromDB(page: Int): List<CharacterDataBaseEntity>
+    fun fetchDataFromDB(): List<CharacterDataBaseEntity>
 
     fun getCharacter(id: Int): CharacterDataBaseEntity
 
@@ -16,7 +14,7 @@ interface CacheDataSource {
 
     fun updateCharacter(characterDataBaseEntity: CharacterDataBaseEntity)
 
-    suspend fun saveData(characterDataList: List<CharacterData>, page: Int)
+    suspend fun saveData(characterDataList: List<CharacterData>)
 
     fun fetchFilmList(): List<FilmDataBaseEntity>
 

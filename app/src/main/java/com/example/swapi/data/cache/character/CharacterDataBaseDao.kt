@@ -11,8 +11,8 @@ interface CharacterDataBaseDao {
     @Query("SELECT * FROM CharacterDataBaseEntity WHERE idOnPage=:id")
     fun getCharacter(id: Int): CharacterDataBaseEntity
 
-    @Query("SELECT * FROM CharacterDataBaseEntity WHERE idOnPage BETWEEN :page*10 AND :page*10+9")
-    fun getCharacterList(page: Int): List<CharacterDataBaseEntity>
+    @Query("SELECT * FROM CharacterDataBaseEntity")
+    fun getCharacterList(): List<CharacterDataBaseEntity>
 
     @Query("SELECT * FROM CharacterDataBaseEntity WHERE type LIKE :type AND idOnPage BETWEEN :page*10 AND :page*10+9")
     fun checkDataFromDB(type: Type, page: Int): List<CharacterDataBaseEntity>

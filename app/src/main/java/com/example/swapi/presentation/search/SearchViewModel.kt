@@ -26,22 +26,14 @@ class SearchViewModel @Inject constructor(
     private val clickFavoriteButton: FavoriteUseCase,
 ) : ViewModel() {
 
-    companion object {
-        private const val LAST_PAGE: Int = 9
-    }
-
     private val _characterDataList: MutableLiveData<List<CharacterData>> = MutableLiveData()
     val characterDataList: LiveData<List<CharacterData>> = _characterDataList
 
     private val _errorMessage: MutableLiveData<String> = MutableLiveData()
     val errorMessage: LiveData<String> = _errorMessage
 
-    private val _page: MutableLiveData<Int> = MutableLiveData<Int>(1)
-    val page: LiveData<Int> = _page
-
-    private val _previousPage: MutableLiveData<Int> = MutableLiveData<Int>(1)
-
     fun viewCreated() {
+        getCharacterList()
         CoroutineScope(Dispatchers.IO).launch {
             val filmDbList = characterListFromCache.fetchFilmList()
             if (filmDbList.isEmpty()) {
@@ -57,11 +49,11 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun getCharacterList() {
+    private fun getCharacterList() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 _characterDataList.postValue(BaseSearchRepository(characterListFromCloud,
-                    characterListFromCache).fetchCharacterList(page.value ?: 1))
+                    characterListFromCache).fetchCharacterList())
             } catch (e: Exception) {
                 when (e) {
                     is HttpException -> _errorMessage.postValue("Отсутсвует интернет, попробуйте еще раз")
@@ -74,21 +66,7 @@ class SearchViewModel @Inject constructor(
 
     fun retryClicked(visible: Boolean) {
         if (visible) {
-            _page.value = _previousPage.value
-        }
-    }
-
-    fun nextClicked() {
-        if (_page.value ?: 1 + 1 in 1..LAST_PAGE) {
-            _previousPage.value = _page.value
-            _page.value = (page.value)?.plus(1)
-        }
-    }
-
-    fun previousClicked() {
-        if (_page.value ?: 1 - 1 in 1..LAST_PAGE) {
-            _previousPage.value = _page.value
-            _page.value = (_page.value)?.minus(1)
+            getCharacterList()
         }
     }
 

@@ -12,12 +12,8 @@ class BaseCacheDataSource(db: SwapiRoomDataBase) : CacheDataSource {
     private val characterDataBaseDao: CharacterDataBaseDao = db.characterDataBaseDao()
     private val filmDataBaseDao: FilmDataBaseDao = db.filmDataBaseDao()
 
-    override fun checkDataFromDB(page: Int): List<CharacterDataBaseEntity> {
-        return characterDataBaseDao.checkDataFromDB(Type.DEFAULT, page - 1)
-    }
-
-    override fun fetchDataFromDB(page: Int): List<CharacterDataBaseEntity> {
-        return characterDataBaseDao.getCharacterList(page - 1)
+    override fun fetchDataFromDB(): List<CharacterDataBaseEntity> {
+        return characterDataBaseDao.getCharacterList()
     }
 
     override fun updateCharacter(characterDataBaseEntity: CharacterDataBaseEntity) {
@@ -32,7 +28,7 @@ class BaseCacheDataSource(db: SwapiRoomDataBase) : CacheDataSource {
         return characterDataBaseDao.getCharacterListByType(type)
     }
 
-    override suspend fun saveData(characterDataList: List<CharacterData>, page: Int) {
+    override suspend fun saveData(characterDataList: List<CharacterData>) {
         characterDataBaseDao.insertList(characterDataList.map { characterData -> characterData.mapToCharacterDataBaseEntity() })
     }
 
