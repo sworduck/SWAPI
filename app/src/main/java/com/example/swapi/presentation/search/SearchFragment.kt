@@ -36,13 +36,7 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initView()
-        //изначально выводится весь список, переопределение необходимо, чтобы выводились лишь первые 10 элементов
-        val myLinearLayoutManager = object : LinearLayoutManager(requireContext()) {
-            override fun canScrollVertically(): Boolean {
-                return false
-            }
-        }
-        binding.charactersRecyclerView.layoutManager = myLinearLayoutManager
+        initSearchView()
 
         initObservers()
         searchViewModel.viewCreated()
@@ -120,6 +114,16 @@ class SearchFragment : Fragment() {
             binding.charactersRecyclerView.isVisible = false
             binding.progressbar.isVisible = false
         }
+    }
+
+    private fun initSearchView(){
+        //изначально выводится весь список, переопределение необходимо, чтобы выводились лишь первые 10 элементов
+        val myLinearLayoutManager = object : LinearLayoutManager(requireContext()) {
+            override fun canScrollVertically(): Boolean {
+                return false
+            }
+        }
+        binding.charactersRecyclerView.layoutManager = myLinearLayoutManager
     }
 
 }
